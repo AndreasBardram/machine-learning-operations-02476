@@ -1,5 +1,5 @@
-from ml_ops_project.model import Model
 from ml_ops_project.data import MyDataset
+from ml_ops_project.model import Model
 
 
 def train():
