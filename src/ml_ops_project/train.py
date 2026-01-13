@@ -1,5 +1,6 @@
 import torch
 from lightning.pytorch.cli import LightningCLI
+
 from ml_ops_project.data import TransactionDataModule
 from ml_ops_project.model import TransactionModel
 

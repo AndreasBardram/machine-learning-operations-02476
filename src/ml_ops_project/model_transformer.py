@@ -1,8 +1,7 @@
 import lightning as pl
 import torch
-from transformers import AutoModelForSequenceClassification
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import OneCycleLR
+from transformers import AutoModelForSequenceClassification
 
 
 class TransformerTransactionModel(pl.LightningModule):
