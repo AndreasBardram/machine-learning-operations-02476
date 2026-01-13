@@ -13,4 +13,4 @@ COPY data/ data/
 WORKDIR /
 RUN uv sync --locked --no-cache --no-install-project
 
-ENTRYPOINT ["uv", "run", "src/ml_ops_project/train.py", "fit"]
+ENTRYPOINT ["uv", "run", "src/ml_ops_project/train_transformer.py", "fit"]
