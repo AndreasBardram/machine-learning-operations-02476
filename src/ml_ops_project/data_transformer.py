@@ -70,10 +70,7 @@ class TextDataModule(pl.LightningDataModule):
 
             ds = load_from_disk(str(raw_path))
             # Handle DatasetDict
-            if hasattr(ds, "keys") and "train" in ds:
-                train_ds = ds["train"]
-            else:
-                train_ds = ds
+            train_ds = ds["train"] if hasattr(ds, "keys") and "train" in ds else ds
 
             if self.limit_samples:
                 print(f"Subsetting data to {self.limit_samples} samples...")
@@ -83,13 +80,11 @@ class TextDataModule(pl.LightningDataModule):
 
             # Need to encode labels as integers
             # We must derive this from the full dataset (or a known list) to ensure consistency across subsets
-            # But for now, using the current (possibly subsetted) ds unique values might be risky if subset misses a class.
+            # But for now, using the current (possibly subsetted) ds unique values might be risky if subset 
+            # misses a class.
             # Ideally we should use the full dataset to get unique categories, or hardcode them if known.
             # Since we loaded the full raw ds above (ds), let's use that for label mapping
-            if hasattr(ds, "keys") and "train" in ds:
-                full_ds_for_labels = ds["train"]
-            else:
-                full_ds_for_labels = ds
+            full_ds_for_labels = ds["train"] if hasattr(ds, "keys") and "train" in ds else ds
 
             unique_categories = sorted(full_ds_for_labels.unique("category"))
             label2id = {label: i for i, label in enumerate(unique_categories)}
@@ -117,7 +112,7 @@ class TextDataModule(pl.LightningDataModule):
             # or we can verify split seed. For simplicity, saving the whole processed ds
             processed_ds.save_to_disk(self.processed_path)
 
-    def setup(self, stage: str = None):
+    def setup(self):
         from torch.utils.data import random_split
 
         full_dataset = TextDataset(self.processed_path)
