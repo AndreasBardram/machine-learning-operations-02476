@@ -152,7 +152,7 @@ class TransactionDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-    def setup(self):
+    def setup(self, stage: str | None = None):  # noqa: ARG002
         print(f"Loading data from {self.data_path}...")
         full_dataset = MyDataset(self.data_path)
         full_dataset.load()

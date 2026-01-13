@@ -1,6 +1,11 @@
 ## Project: Receipt line-item classifier
 DTU course: 02476, machine learning operations
 
+## Commands to run project:
+
+
+
+
 ### Goal
 Build an end-to-end ML system that classifies short transaction descriptions (receipt line-items / bank statement text) into spending categories (e.g., Food & Dining, Transportation, Utilities, Shopping). Input is a single text string, output is a predicted category + confidence. The project emphasizes a reproducible MLOps pipeline: data download + preprocessing, training + evaluation, experiment tracking, packaging and deployment of an inference API, and automated testing/CI.
 

@@ -112,7 +112,7 @@ class TextDataModule(pl.LightningDataModule):
             # or we can verify split seed. For simplicity, saving the whole processed ds
             processed_ds.save_to_disk(self.processed_path)
 
-    def setup(self):
+    def setup(self, stage: str | None = None):  # noqa: ARG002
         from torch.utils.data import random_split
 
         full_dataset = TextDataset(self.processed_path)

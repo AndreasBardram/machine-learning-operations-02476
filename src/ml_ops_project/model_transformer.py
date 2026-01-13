@@ -9,6 +9,8 @@ class TransformerTransactionModel(pl.LightningModule):
         self,
         model_name_or_path: str = "distilbert-base-uncased",
         num_labels: int = 10,
+        learning_rate: float = 2e-5,  # noqa: ARG002
+        weight_decay: float = 0.01,  # noqa: ARG002
         freeze_backbone: bool = False,
     ):
         super().__init__()
