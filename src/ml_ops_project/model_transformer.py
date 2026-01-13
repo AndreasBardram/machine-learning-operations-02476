@@ -9,8 +9,6 @@ class TransformerTransactionModel(pl.LightningModule):
         self,
         model_name_or_path: str = "distilbert-base-uncased",
         num_labels: int = 10,
-        learning_rate: float = 2e-5,
-        weight_decay: float = 0.01,
         freeze_backbone: bool = False,
     ):
         super().__init__()
@@ -31,7 +29,8 @@ class TransformerTransactionModel(pl.LightningModule):
             else:
                 # Fallback: try to guess or freeze everything except classifier
                 print(
-                    "Warning: Could not identify base_model, attempting to freeze named parameters not containing 'classifier' or 'head'."
+                    "Warning: Could not identify base_model, attempting to freeze "
+                    "named parameters not containing 'classifier' or 'head'."
                 )
                 for name, param in self.model.named_parameters():
                     if "classifier" not in name and "head" not in name and "pre_classifier" not in name:
@@ -42,7 +41,7 @@ class TransformerTransactionModel(pl.LightningModule):
     def forward(self, input_ids, attention_mask, labels=None):
         return self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch):
         outputs = self(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
         loss = outputs.loss
         self.log("train_loss", loss, prog_bar=True)
@@ -52,7 +51,7 @@ class TransformerTransactionModel(pl.LightningModule):
         self.log("train_acc", acc, prog_bar=True)
         return loss
 
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch):
         outputs = self(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
         loss = outputs.loss
         self.log("val_loss", loss, prog_bar=True)
@@ -62,7 +61,7 @@ class TransformerTransactionModel(pl.LightningModule):
         self.log("val_acc", acc, prog_bar=True)
         return loss
 
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch):
         outputs = self(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
         loss = outputs.loss
         self.log("test_loss", loss, prog_bar=True)
