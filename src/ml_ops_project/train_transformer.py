@@ -8,7 +8,7 @@ torch.set_float32_matmul_precision("high")
 
 
 def cli_main():
-    cli = LightningCLI(TransformerTransactionModel, TextDataModule, save_config_kwargs={"overwrite": True})
+    LightningCLI(TransformerTransactionModel, TextDataModule, save_config_kwargs={"overwrite": True})
 
 
 if __name__ == "__main__":
