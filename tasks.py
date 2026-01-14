@@ -13,15 +13,18 @@ def preprocess_data(ctx: Context) -> None:
     """Preprocess data."""
     ctx.run(f"uv run src/{PROJECT_NAME}/data.py", echo=True, pty=not WINDOWS)
 
+
 @task
 def preprocess_data_transformer(ctx: Context) -> None:
     """Preprocess data."""
     ctx.run(f"uv run src/{PROJECT_NAME}/data_transformer.py", echo=True, pty=not WINDOWS)
 
+
 @task
 def train(ctx: Context) -> None:
     """Train model."""
     ctx.run(f"uv run src/{PROJECT_NAME}/train.py fit", echo=True, pty=not WINDOWS)
+
 
 @task
 def train_transformer(ctx: Context) -> None:

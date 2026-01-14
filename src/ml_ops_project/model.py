@@ -7,12 +7,7 @@ from torch import nn
 class TransactionModel(pl.LightningModule):
     """A PyTorch Lightning model for classifying transaction categories."""
 
-    def __init__(
-            self, 
-            input_dim: int = 32,
-            hidden_dim: int = 64,
-            output_dim: int = 10, 
-            learning_rate: float = 1e-3):
+    def __init__(self, input_dim: int = 32, hidden_dim: int = 64, output_dim: int = 10, learning_rate: float = 1e-3):
         super().__init__()
         self.save_hyperparameters()
         self.input_dim = input_dim
