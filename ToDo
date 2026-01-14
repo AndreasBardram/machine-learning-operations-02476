@@ -10,7 +10,7 @@ Alle [ ] Remember to comply with good coding practices (pep8) while doing the pr
 Alle [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
 Oscar [ ] Setup version control for your data or part of your data (M8)
 Freddy [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
-Frederik [ ] Construct one or multiple docker files for your code (M10)
+Frederik [x] Construct one or multiple docker files for your code (M10)
 Frederik [ ] Build the docker files locally and make sure they work as intended (M10)
 Freddy [ ] Write one or multiple configurations files for your experiments (M11)
 Freddy [ ] Used Hydra to load the configurations and manage your hyperparameters (M11)
@@ -21,9 +21,9 @@ Freddy [ ] Used Hydra to load the configurations and manage your hyperparameters
 Otto [x] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
 
 # Week 2
-Frederik [ ] Write unit tests related to the data part of your code (M16)
-Frederik [ ] Write unit tests related to model construction and or model training (M16)
-Frederik [ ] Calculate the code coverage (M16)
+Frederik [x] Write unit tests related to the data part of your code (M16)
+Frederik [x] Write unit tests related to model construction and or model training (M16)
+Frederik [x] Calculate the code coverage (M16)
 Andreas [ ] Get some continuous integration running on the GitHub repository (M17)
 Andreas [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
 Andreas [ ] Add a linting step to your continuous integration (M17)
