@@ -18,7 +18,7 @@ jobs:
         pytorch-version: ["2.2.2"]
       fail-fast: false
     env:
-      UV_CACHE_DIR: ${{ runner.temp }}/uv-cache
+      UV_CACHE_DIR: ${{ github.workspace }}/.uv-cache
 
     steps:
       - name: Checkout code
