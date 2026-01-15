@@ -10,7 +10,15 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python-version: ["3.11", "3.12"]
+        pytorch-version: ["2.2.2"]
+      fail-fast: false
+    env:
+      UV_CACHE_DIR: ${{ runner.temp }}/uv-cache
 
     steps:
       - name: Checkout code
@@ -19,18 +27,47 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            uv.lock
 
-      - name: Install dependencies
+      - name: Cache uv
+        if: runner.os == 'Linux'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-${{ matrix.python-version }}-
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
           python -m pip install -U pip setuptools wheel
           pip install uv
-          uv pip install --system -e .
-          uv pip install --system pytest coverage pytest-cov
-          uv pip list --system
+          uv sync --dev --locked
+        env:
+          UV_CACHE_DIR: ${{ env.UV_CACHE_DIR }}
+
+      - name: Install dependencies (macOS/Windows)
+        if: runner.os != 'Linux'
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install -e .
+          pip install pytest coverage pytest-cov
+          pip install torch==${{ matrix.pytorch-version }}
 
 
-      - name: Run tests & coverage
+      - name: Run tests & coverage (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          uv run coverage run -m pytest tests/
+          uv run coverage report -m
+
+      - name: Run tests & coverage (macOS/Windows)
+        if: runner.os != 'Linux'
         run: |
           coverage run -m pytest tests/
           coverage report -m
