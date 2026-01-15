@@ -1,0 +1,4 @@
+[core]
+    remote = googlebucket
+['remote "googlebucket"']
+    url = gs://machine-learning-operations-receipt
