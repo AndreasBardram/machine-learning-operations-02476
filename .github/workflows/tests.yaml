@@ -9,6 +9,33 @@ on:
       - main
 
 jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install ruff
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install ruff
+
+      - name: ruff check
+        run: |
+          ruff check .
+
+      - name: ruff format
+        run: |
+          ruff format . --check
+
   test:
     runs-on: ${{ matrix.operating-system }}
     strategy:
