@@ -177,3 +177,5 @@ cython_debug/
 #.idea/
 
 data/
+/data
+.dvc/mlops-484110-a6634619ceb7.json
