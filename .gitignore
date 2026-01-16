@@ -182,3 +182,5 @@ models/
 logs/
 lightning_logs/
 dvc-credentials.json
+/data
+data.dvc
