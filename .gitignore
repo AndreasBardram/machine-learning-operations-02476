@@ -181,3 +181,4 @@ wandb/
 models/
 logs/
 lightning_logs/
+dvc-credentials.json
