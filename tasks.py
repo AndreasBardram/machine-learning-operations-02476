@@ -30,9 +30,7 @@ def train(ctx: Context, epochs: int = 10, subset: bool = False, experiment: str 
     else:
         experiment_arg = ""
     ctx.run(
-        f"uv run src/{PROJECT_NAME}/train.py {experiment_arg}trainer.max_epochs={epochs}",
-        echo=True,
-        pty=not WINDOWS
+        f"uv run src/{PROJECT_NAME}/train.py {experiment_arg}trainer.max_epochs={epochs}", echo=True, pty=not WINDOWS
     )
 
 
@@ -43,7 +41,7 @@ def train_transformer(ctx: Context, epochs: int = 10, experiment: str | None = N
     ctx.run(
         f"uv run src/{PROJECT_NAME}/train_transformer.py {experiment_arg}trainer.max_epochs={epochs}",
         echo=True,
-        pty=not WINDOWS
+        pty=not WINDOWS,
     )
 
 
@@ -87,8 +85,8 @@ def lint(ctx: Context, fix: bool = False):
     fix_flag = "--fix" if fix else ""
     ctx.run(f"uv run ruff check . {fix_flag}", echo=True, pty=not WINDOWS)
 
+
 def format(ctx: Context, check: bool = False):
     """Run ruff formatting"""
     check_flag = "--check" if check else ""
     ctx.run(f"uv run ruff format . {check_flag}", echo=True, pty=not WINDOWS)
-

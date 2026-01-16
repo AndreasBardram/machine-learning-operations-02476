@@ -143,7 +143,7 @@ if __name__ == "__main__":
     typer.run(preprocess)
 
 
-class TransactionDataModule(pl.LightningDataModule): 
+class TransactionDataModule(pl.LightningDataModule):
     def __init__(
         self, data_path: str = "data/processed/transactiq_processed", batch_size: int = 64, num_workers: int = 4
     ):
