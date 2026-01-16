@@ -63,7 +63,7 @@ jobs:
 
       - name: Cache uv
         if: runner.os == 'Linux'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.UV_CACHE_DIR }}
           key: uv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('uv.lock') }}
