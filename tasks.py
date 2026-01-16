@@ -21,20 +21,30 @@ def preprocess_data_transformer(ctx: Context) -> None:
 
 
 @task
-def train(ctx: Context, epochs: int = 10, subset: bool = False) -> None:
+def train(ctx: Context, epochs: int = 10, subset: bool = False, experiment: str | None = None) -> None:
     """Train model."""
-    data_path = "data/processed/transactiq_processed_subset" if subset else "data/processed/transactiq_processed"
+    if experiment:
+        experiment_arg = f"experiment={experiment} "
+    elif subset:
+        experiment_arg = "experiment=baseline_subset "
+    else:
+        experiment_arg = ""
     ctx.run(
-        f"uv run src/{PROJECT_NAME}/train.py fit --trainer.max_epochs {epochs} --data.data_path {data_path}", 
-        echo=True, 
+        f"uv run src/{PROJECT_NAME}/train.py {experiment_arg}trainer.max_epochs={epochs}",
+        echo=True,
         pty=not WINDOWS
     )
 
 
 @task
-def train_transformer(ctx: Context) -> None:
-    """Train model."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/train_transformer.py fit", echo=True, pty=not WINDOWS)
+def train_transformer(ctx: Context, epochs: int = 10, experiment: str | None = None) -> None:
+    """Train the transformer model using Hydra configuration."""
+    experiment_arg = f"experiment={experiment} " if experiment else ""
+    ctx.run(
+        f"uv run src/{PROJECT_NAME}/train_transformer.py {experiment_arg}trainer.max_epochs={epochs}",
+        echo=True,
+        pty=not WINDOWS
+    )
 
 
 @task

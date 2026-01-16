@@ -9,8 +9,9 @@ COPY pyproject.toml pyproject.toml
 COPY README.md README.md
 COPY src/ src/
 COPY data/ data/
+COPY configs/ configs/
 
 WORKDIR /
 RUN uv sync --locked --no-cache --no-install-project
 
-ENTRYPOINT ["uv", "run", "src/ml_ops_project/train_transformer.py", "fit"]
+ENTRYPOINT ["uv", "run", "src/ml_ops_project/train_transformer.py"]

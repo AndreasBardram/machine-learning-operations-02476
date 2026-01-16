@@ -1,15 +1,62 @@
+import logging
+from importlib import import_module
+
+import hydra
+import lightning as L
 import torch
-from lightning.pytorch.cli import LightningCLI
+from omegaconf import DictConfig, OmegaConf
 
 from ml_ops_project.data import TransactionDataModule
 from ml_ops_project.model import TransactionModel
 
 torch.set_float32_matmul_precision("high")
+log = logging.getLogger(__name__)
 
 
-def cli_main():
-    LightningCLI(TransactionModel, TransactionDataModule, save_config_kwargs={"overwrite": True})
+def instantiate_class(config):
+    if config is None:
+        return None
+    if not isinstance(config, dict) or "class_path" not in config:
+        return config
+    
+    module_path, class_name = config["class_path"].rsplit(".", 1)
+    module = import_module(module_path)
+    cls = getattr(module, class_name)
+    
+    init_args = config.get("init_args", {})
+    return cls(**init_args)
+
+
+@hydra.main(version_base=None, config_path="../../configs", config_name="default")
+def main(cfg: DictConfig) -> None:
+    log.info(f"Starting training with config:\n{OmegaConf.to_yaml(cfg)}")
+    log.info(f"Output directory: {hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}")
+    
+    seed = cfg.get("seed_everything", 42)
+    L.seed_everything(seed)
+    log.info(f"Seed set to: {seed}")
+    
+    model = TransactionModel(**cfg.model)
+    datamodule = TransactionDataModule(**cfg.data)
+    log.info("Model and DataModule loaded")
+    
+    trainer_cfg = OmegaConf.to_container(cfg.trainer, resolve=True)
+    
+    if "callbacks" in trainer_cfg:
+        callbacks = [instantiate_class(cb) for cb in trainer_cfg["callbacks"]]
+        trainer_cfg["callbacks"] = callbacks
+        log.info(f"Loaded {len(callbacks)} callbacks")
+    
+    if "logger" in trainer_cfg:
+        trainer_cfg["logger"] = instantiate_class(trainer_cfg["logger"])
+        log.info("Logger loaded")
+    
+    trainer = L.Trainer(**trainer_cfg)
+    log.info("Trainer created")
+    
+    trainer.fit(model, datamodule)
+    log.info("Training complete")
 
 
 if __name__ == "__main__":
-    cli_main()
+    main()

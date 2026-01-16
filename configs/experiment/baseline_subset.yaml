@@ -1,0 +1,6 @@
+# @package _global_
+
+# Config
+defaults:
+  - /subset
+seed_everything: 42
