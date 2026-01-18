@@ -1,0 +1,81 @@
+name: Stage Model
+
+on:
+  repository_dispatch:
+    types: [staged_model]
+  workflow_dispatch:
+    inputs:
+      model_name:
+        description: "W&B artifact path (entity/project/artifact:version)"
+        required: false
+        type: string
+      max_seconds:
+        description: "Max seconds for 100 predictions"
+        required: false
+        default: "10"
+        type: string
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    env:
+      MODEL_NAME: ${{ github.event.client_payload.artifact_version_string || github.event.client_payload.artifact_version || github.event.inputs.model_name }}
+      MODEL_PERF_MAX_SECONDS: ${{ github.event.inputs.max_seconds || '10' }}
+      WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      WANDB_ENTITY: ${{ secrets.WANDB_ENTITY }}
+      WANDB_PROJECT: ${{ secrets.WANDB_PROJECT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate payload
+        run: |
+          if [ -z "$MODEL_NAME" ]; then
+            echo "MODEL_NAME is empty. Provide workflow_dispatch input or W&B payload." >&2
+            exit 1
+          fi
+          echo "Model staged: $MODEL_NAME"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install uv
+          uv sync --dev --locked
+
+      - name: Run performance test
+        run: |
+          uv run pytest tests/performancetests/test_model.py
+
+  promote-model:
+    needs: performance-test
+    runs-on: ubuntu-latest
+    env:
+      MODEL_NAME: ${{ github.event.client_payload.artifact_version_string || github.event.client_payload.artifact_version || github.event.inputs.model_name }}
+      WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      WANDB_ENTITY: ${{ secrets.WANDB_ENTITY }}
+      WANDB_PROJECT: ${{ secrets.WANDB_PROJECT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install uv
+          uv sync --dev --locked
+
+      - name: Promote model to production
+        run: |
+          uv run python scripts/link_model.py "$MODEL_NAME" -a production
