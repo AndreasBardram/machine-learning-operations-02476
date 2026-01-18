@@ -176,12 +176,13 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-data/
+data/**
+!data/.gitkeep
+!data/**/.gitkeep
 wandb/
 models/
 logs/
 lightning_logs/
 outputs/
 dvc-credentials.json
-/data
 data.dvc
