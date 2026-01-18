@@ -6,6 +6,7 @@ COPY pyproject.toml pyproject.toml
 RUN uv sync --frozen --no-install-project
 
 COPY src src/
+COPY models models/
 
 RUN uv sync --frozen
 
