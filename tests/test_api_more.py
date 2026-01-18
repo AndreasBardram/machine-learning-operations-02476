@@ -105,7 +105,7 @@ def test_create_predictor_hf_path(monkeypatch):
         "from_pretrained",
         lambda name: dummy_model if name == "some-model" else None,
     )
-    monkeypatch.setattr(api_module.AutoTokenizer, "from_pretrained", lambda name: _DummyTokenizer())
+    monkeypatch.setattr(api_module.AutoTokenizer, "from_pretrained", lambda _name: _DummyTokenizer())
 
     predictor = api_module.create_predictor()
     assert predictor.model_id == "some-model"
@@ -125,7 +125,7 @@ def test_create_predictor_ckpt_path(monkeypatch, tmp_path):
 
     class _DummyTTM:
         @staticmethod
-        def load_from_checkpoint(path):  # noqa: ARG002
+        def load_from_checkpoint(_path):
             return _DummyLightning()
 
     monkeypatch.setenv("MODEL_CHECKPOINT_PATH", str(ckpt))
@@ -133,7 +133,7 @@ def test_create_predictor_ckpt_path(monkeypatch, tmp_path):
     monkeypatch.delenv("MODEL_NAME_OR_PATH", raising=False)
 
     monkeypatch.setattr(api_module, "TransformerTransactionModel", _DummyTTM)
-    monkeypatch.setattr(api_module.AutoTokenizer, "from_pretrained", lambda name: _DummyTokenizer())
+    monkeypatch.setattr(api_module.AutoTokenizer, "from_pretrained", lambda _name: _DummyTokenizer())
 
     predictor = api_module.create_predictor()
     assert predictor.model_id.startswith("lightning_ckpt:")
@@ -152,4 +152,3 @@ def test_predict_422_when_all_texts_blank(monkeypatch):
     with TestClient(api_module.app) as client:
         resp = client.post("/predict", json={"texts": ["  ", ""]})
         assert resp.status_code == 422
-

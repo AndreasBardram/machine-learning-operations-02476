@@ -63,11 +63,11 @@ def test_main_builds_trainer_and_calls_fit(monkeypatch, dummy_import_module, mod
         created["seed"] = seed
 
     class _DummyModel:
-        def __init__(self, **kwargs) -> None:  # noqa: ARG002
+        def __init__(self, **kwargs) -> None:
             created["model_kwargs"] = kwargs
 
     class _DummyDataModule:
-        def __init__(self, **kwargs) -> None:  # noqa: ARG002
+        def __init__(self, **kwargs) -> None:
             created["data_kwargs"] = kwargs
 
     class _DummyTrainer:
@@ -112,4 +112,3 @@ def test_main_builds_trainer_and_calls_fit(monkeypatch, dummy_import_module, mod
     assert isinstance(created["trainer_kwargs"]["logger"], _DummyLogger)
     assert isinstance(created["fit_called_with"][0], _DummyModel)
     assert isinstance(created["fit_called_with"][1], _DummyDataModule)
-

@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-import pytest
 from datasets import Dataset, DatasetDict
 
 # Add root path to dir
@@ -12,7 +11,7 @@ from src.ml_ops_project import data_transformer as dt  # noqa: E402
 
 
 class _DummyTokenizer:
-    def __call__(self, texts, **kwargs):  # noqa: ARG002
+    def __call__(self, texts, **kwargs):
         max_length = kwargs.get("max_length", 8)
         return {
             "input_ids": [[1] * max_length for _ in texts],
@@ -54,4 +53,3 @@ def test_prepare_data_limit_samples(monkeypatch, tmp_path):
 
     processed = dt.load_from_disk(str(dm.processed_path))
     assert len(processed) == 7
-
