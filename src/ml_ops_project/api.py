@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 import torch
 from fastapi import FastAPI, HTTPException
@@ -35,6 +35,22 @@ class Prediction(BaseModel):
 class PredictResponse(BaseModel):
     predictions: list[Prediction]
     model: str
+
+
+class Predictor(Protocol):
+    model_id: str
+
+    def predict(self, texts: list[str]) -> list[Prediction]: ...
+
+
+@dataclass(frozen=True)
+class DummyPredictor:
+    labels: list[str] | None
+    model_id: str = "dummy"
+
+    def predict(self, texts: list[str]) -> list[Prediction]:
+        label = self.labels[0] if self.labels else None
+        return [Prediction(label=label, label_id=0, confidence=1.0) for _ in texts]
 
 
 @dataclass(frozen=True)
@@ -84,7 +100,11 @@ def _find_latest_ckpt(dir_path: Path) -> Path | None:
     return ckpts[0] if ckpts else None
 
 
-def create_predictor() -> TransformerPredictor:
+def create_predictor() -> Predictor:
+    use_dummy = os.getenv("USE_DUMMY_PREDICTOR", "").strip().lower() in {"1", "true", "yes"}
+    if use_dummy:
+        return DummyPredictor(labels=_parse_labels_from_env())
+
     device_str = os.getenv("DEVICE", "cpu")
     device = torch.device(device_str)
 
@@ -140,7 +160,7 @@ def health() -> dict[str, str]:
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest) -> PredictResponse:
-    predictor: TransformerPredictor | None = getattr(app.state, "predictor", None)
+    predictor: Predictor | None = getattr(app.state, "predictor", None)
     if predictor is None:
         raise HTTPException(status_code=503, detail="Model not loaded yet.")
 
