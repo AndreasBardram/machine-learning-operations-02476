@@ -12,6 +12,23 @@ DTU course: 02476, machine learning operations
 - invoke train --epochs 10 --subset (if you want to train for 10 epoch and on subset data)
 - invoke train-transformer
 
+## Inference API (FastAPI)
+Run the API locally:
+- `uv run uvicorn src.ml_ops_project.api:app --host 0.0.0.0 --port 8000 --reload`
+
+Endpoints:
+- `GET /health`
+- `POST /predict` with `{"text": "STARBUCKS"}` or `{"texts": ["STARBUCKS", "UBER"]}`
+
+Model loading (first match wins):
+- `MODEL_CHECKPOINT_PATH=/path/to/checkpoint.ckpt` (Lightning checkpoint from `models/checkpoints_transformer/`)
+- `MODEL_CHECKPOINT_DIR=models/checkpoints_transformer` (defaults to this; newest `*.ckpt` is used)
+- `MODEL_NAME_OR_PATH=distilbert-base-uncased` (Hugging Face model id/path fallback)
+
+Optional:
+- `LABELS="Food & Dining,Transportation,..."` to map `label_id` → `label`
+- `MAX_LENGTH=64` and `DEVICE=cpu`
+
 ## Code Coverage:
 Coverage: 75.7%
 
