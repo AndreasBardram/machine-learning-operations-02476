@@ -68,13 +68,13 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
 @task
 def run_onnx_api(ctx: Context) -> None:
     """initialize the FastAPI for the ONNX model."""
-    ctx.run("uv run src/{PROJECT_NAME}/onnx_fastapi.py", echo=True, pty=not WINDOWS)
+    ctx.run(f"uv run src/{PROJECT_NAME}/onnx_fastapi.py", echo=True, pty=not WINDOWS)
 
 # Important: the test_onnx_api.py file requires the FastAPI server to be running.
 @task
 def test_onnx_api(ctx: Context) -> None:
     """initialize the FastAPI for the ONNX model."""
-    ctx.run("uv run src/{PROJECT_NAME}/test_onnx_api.py", echo=True, pty=not WINDOWS)
+    ctx.run(f"uv run src/{PROJECT_NAME}/test_onnx_api.py", echo=True, pty=not WINDOWS)
 
 
 

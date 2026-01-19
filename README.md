@@ -29,6 +29,13 @@ Optional:
 - `LABELS="Food & Dining,Transportation,..."` to map `label_id` → `label`
 - `MAX_LENGTH=64` and `DEVICE=cpu`
 
+## Inference ONNX API
+Run the ONNX api locally
+- invoke run-onnx-api
+
+test the API (required api to be running locally)
+- invoke test-onnx-api
+
 ## Code Coverage:
 Coverage: 95.0%
 
