@@ -37,7 +37,7 @@ Oscar [ ] Create a FastAPI application that can do inference using your model (M
 Oscar [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
 Oscar & Andreas [ ] Write API tests for your application and setup continues integration for these (M24)
 Oscar [ ] Load test your application (M24)
-Frederik [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
+Frederik [x] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 Freddy [ ] Create a frontend for your API (M26)
 
 # Week 3
