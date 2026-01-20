@@ -20,6 +20,17 @@ Endpoints:
 - `GET /health`
 - `POST /predict` with `{"text": "STARBUCKS"}` or `{"texts": ["STARBUCKS", "UBER"]}`
 
+## API Integration Tests
+The integration tests call a running API over HTTP (via `httpx`) and use `MYENDPOINT` to know where it is deployed.
+If `MYENDPOINT` is not set, these tests are skipped.
+
+Run locally with a lightweight dummy predictor (fast startup, no model downloads):
+- `USE_DUMMY_PREDICTOR=1 uv run uvicorn src.ml_ops_project.api:app --host 127.0.0.1 --port 8000`
+- `MYENDPOINT=http://127.0.0.1:8000 uv run pytest -q tests/integrationtests`
+
+Run against a deployed API:
+- `MYENDPOINT=https://<your-service-url> uv run pytest -q tests/integrationtests`
+
 Model loading (first match wins):
 - `MODEL_CHECKPOINT_PATH=/path/to/checkpoint.ckpt` (Lightning checkpoint from `models/checkpoints_transformer/`)
 - `MODEL_CHECKPOINT_DIR=models/checkpoints_transformer` (defaults to this; newest `*.ckpt` is used)
@@ -35,6 +46,25 @@ Run the ONNX api locally
 
 test the API (required api to be running locally)
 - invoke test-onnx-api
+
+## Docker Images
+Build Docker images for different components:
+
+```bash
+# API image - runs FastAPI inference server
+docker build -f dockerfiles/api.dockerfile -t ml-ops-api .
+
+# Train baseline model
+docker build -f dockerfiles/train.dockerfile -t ml-ops-train .
+
+# Train transformer model
+docker build -f dockerfiles/train_transformer.dockerfile -t ml-ops-train-transformer .
+
+# Evaluate model
+docker build -f dockerfiles/eval.dockerfile -t ml-ops-eval .
+```
+
+All images use `uv` for Python dependency management with Python 3.12.
 
 ## Code Coverage:
 Coverage: 95.0%

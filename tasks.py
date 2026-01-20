@@ -64,20 +64,19 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
         f"docker build -t api:latest . -f dockerfiles/api.dockerfile --progress={progress}", echo=True, pty=not WINDOWS
     )
 
+
 # ONNX commands
 @task
 def run_onnx_api(ctx: Context) -> None:
     """initialize the FastAPI for the ONNX model."""
     ctx.run(f"uv run src/{PROJECT_NAME}/onnx_fastapi.py", echo=True, pty=not WINDOWS)
 
+
 # Important: the test_onnx_api.py file requires the FastAPI server to be running.
 @task
 def test_onnx_api(ctx: Context) -> None:
     """initialize the FastAPI for the ONNX model."""
     ctx.run(f"uv run src/{PROJECT_NAME}/test_onnx_api.py", echo=True, pty=not WINDOWS)
-
-
-
 
 
 # Documentation commands
