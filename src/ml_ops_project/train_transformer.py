@@ -27,7 +27,7 @@ def instantiate_class(config):
     return cls(**init_args)
 
 
-@hydra.main(version_base=None, config_path="../../configs", config_name="transformer_default")
+@hydra.main(version_base=None, config_path="../../configs", config_name="transformer_default_subset")
 def main(cfg: DictConfig) -> None:
     log.info(f"Starting transformer training with config:\n{OmegaConf.to_yaml(cfg)}")
     log.info(f"Output directory: {hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}")
