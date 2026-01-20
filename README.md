@@ -36,6 +36,25 @@ Run the ONNX api locally
 test the API (required api to be running locally)
 - invoke test-onnx-api
 
+## Docker Images
+Build Docker images for different components:
+
+```bash
+# API image - runs FastAPI inference server
+docker build -f dockerfiles/api.dockerfile -t ml-ops-api .
+
+# Train baseline model
+docker build -f dockerfiles/train.dockerfile -t ml-ops-train .
+
+# Train transformer model
+docker build -f dockerfiles/train_transformer.dockerfile -t ml-ops-train-transformer .
+
+# Evaluate model
+docker build -f dockerfiles/eval.dockerfile -t ml-ops-eval .
+```
+
+All images use `uv` for Python dependency management with Python 3.12.
+
 ## Code Coverage:
 Coverage: 95.0%
 
