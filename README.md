@@ -20,6 +20,12 @@ Endpoints:
 - `GET /health`
 - `POST /predict` with `{"text": "STARBUCKS"}` or `{"texts": ["STARBUCKS", "UBER"]}`
 
+## Streamlit Frontend
+Run the Streamlit UI:
+- `uv run streamlit run src/ml_ops_project/streamlit_app.py`
+
+By default it targets `http://127.0.0.1:8000`. Start the FastAPI server first or update the sidebar URL.
+
 ## API Integration Tests
 The integration tests call a running API over HTTP (via `httpx`) and use `MYENDPOINT` to know where it is deployed.
 If `MYENDPOINT` is not set, these tests are skipped.
