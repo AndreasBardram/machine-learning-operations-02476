@@ -37,6 +37,68 @@ jobs:
         run: |
           ruff format . --check
 
+  api_integration_tests:
+    name: API Integration Tests (httpx)
+    runs-on: ubuntu-latest
+    env:
+      UV_CACHE_DIR: ${{ github.workspace }}/.uv-cache
+      MYENDPOINT: http://127.0.0.1:8000
+      USE_DUMMY_PREDICTOR: "1"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            uv.lock
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: uv-${{ runner.os }}-3.11-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-3.11-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip setuptools wheel
+          pip install uv
+          uv sync --dev --locked
+        env:
+          UV_CACHE_DIR: ${{ env.UV_CACHE_DIR }}
+
+      - name: Start API
+        run: |
+          uv run uvicorn src.ml_ops_project.api:app --host 127.0.0.1 --port 8000 &
+          echo $! > uvicorn.pid
+
+      - name: Wait for API
+        run: |
+          for i in {1..60}; do
+            if curl -fsS "$MYENDPOINT/health" >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API did not become healthy in time" >&2
+          exit 1
+
+      - name: Run integration tests
+        run: |
+          uv run pytest -q tests/integrationtests
+
+      - name: Stop API
+        if: always()
+        run: |
+          kill "$(cat uvicorn.pid)" || true
+
   test:
     runs-on: ${{ matrix.operating-system }}
     strategy:
@@ -91,11 +153,11 @@ jobs:
       - name: Run tests & coverage (Linux)
         if: runner.os == 'Linux'
         run: |
-          uv run coverage run -m pytest tests/
+          uv run coverage run -m pytest tests/ --ignore=tests/integrationtests
           uv run coverage report -m
 
       - name: Run tests & coverage (macOS/Windows)
         if: runner.os != 'Linux'
         run: |
-          coverage run -m pytest tests/
+          coverage run -m pytest tests/ --ignore=tests/integrationtests
           coverage report -m
