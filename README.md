@@ -40,6 +40,18 @@ test the API (required api to be running locally)
 Build Docker images for different components:
 
 ```bash
+# Single image (API, train, eval, preprocess, onnx-api)
+docker build -t ml-ops-app .
+
+# Run API (default)
+docker run --rm -p 8000:8000 ml-ops-app
+
+# Run training (mount data/models as needed)
+docker run --rm -v "$PWD/data:/app/data" -v "$PWD/models:/app/models" ml-ops-app train trainer.max_epochs=1
+
+# Run eval
+docker run --rm -v "$PWD/data:/app/data" -v "$PWD/models:/app/models" ml-ops-app eval
+
 # API image - runs FastAPI inference server
 docker build -f dockerfiles/api.dockerfile -t ml-ops-api .
 

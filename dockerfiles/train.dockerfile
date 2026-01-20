@@ -8,10 +8,11 @@ COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
 COPY src/ src/
-COPY data/ data/
 COPY configs/ configs/
 
 WORKDIR /
 RUN uv sync --locked --no-cache --no-install-project
+
+RUN mkdir -p data
 
 ENTRYPOINT ["uv", "run", "src/ml_ops_project/train.py"]
