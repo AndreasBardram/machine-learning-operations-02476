@@ -40,7 +40,8 @@ class PredictResponse(BaseModel):
 class Predictor(Protocol):
     model_id: str
 
-    def predict(self, texts: list[str]) -> list[Prediction]: ...
+    def predict(self, texts: list[str]) -> list[Prediction]:
+        ...
 
 
 @dataclass(frozen=True)
