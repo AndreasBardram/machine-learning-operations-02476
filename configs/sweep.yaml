@@ -9,8 +9,6 @@ command:
   - ${env}
   - ${interpreter}
   - ${program}
-  - "fit"
-  - "--config"
   - "src/ml_ops_project/conf/default.yaml"
   - ${args}
 parameters:
