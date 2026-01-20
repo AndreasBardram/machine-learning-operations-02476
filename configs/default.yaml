@@ -14,7 +14,7 @@ trainer:
   min_epochs: 1
   accelerator: "auto"
   devices: "auto"
-  # deterministic: true # Ensure reproducibility if needed
+  deterministic: true
   
   logger:
     class_path: lightning.pytorch.loggers.WandbLogger
@@ -38,3 +38,7 @@ trainer:
         save_top_k: 1
         monitor: "val_loss"
         mode: "min"
+
+hydra:
+  job:
+    chdir: false
