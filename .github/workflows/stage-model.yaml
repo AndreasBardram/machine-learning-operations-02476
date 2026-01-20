@@ -1,0 +1,26 @@
+name: Stage Model
+
+on:
+  repository_dispatch:
+    types: [staged_model]
+  workflow_dispatch:
+    inputs:
+      model_name:
+        description: "W&B artifact path (entity/project/artifact:version)"
+        required: false
+        type: string
+
+jobs:
+  log-staged-model:
+    runs-on: ubuntu-latest
+    env:
+      MODEL_NAME: ${{ github.event.client_payload.artifact_version_string || github.event.client_payload.artifact_version || github.event.inputs.model_name }}
+
+    steps:
+      - name: Validate payload
+        run: |
+          if [ -z "$MODEL_NAME" ]; then
+            echo "MODEL_NAME is empty. Provide workflow_dispatch input or W&B payload." >&2
+            exit 1
+          fi
+          echo "Staged model: $MODEL_NAME"
