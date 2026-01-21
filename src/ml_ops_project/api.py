@@ -121,11 +121,7 @@ def _labels_from_lightning_hparams(lightning_model: Any) -> list[str] | None:
     hparams = getattr(lightning_model, "hparams", None)
     if hparams is None:
         return None
-    labels = None
-    if isinstance(hparams, dict):
-        labels = hparams.get("labels")
-    else:
-        labels = getattr(hparams, "labels", None)
+    labels = hparams.get("labels") if isinstance(hparams, dict) else getattr(hparams, "labels", None)
     return labels if labels else None
 
 
