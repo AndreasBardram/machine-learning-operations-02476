@@ -187,3 +187,4 @@ outputs/
 dvc-credentials.json
 deploy-sa.json
 /data
+.env

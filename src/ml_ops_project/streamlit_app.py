@@ -221,7 +221,7 @@ def main() -> None:
                                 "confidence": round(float(pred.get("confidence", 0.0)), 3),
                             }
                         )
-                    st.dataframe(rows, use_container_width=True)
+                    st.dataframe(rows, width="stretch")
                 else:
                     st.error(result.error or "Batch prediction failed.")
 
