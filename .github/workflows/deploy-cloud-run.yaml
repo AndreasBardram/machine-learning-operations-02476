@@ -66,7 +66,7 @@ jobs:
             --platform managed
             --allow-unauthenticated
             --port 8000
-            --memory 2Gi
+            --memory 4Gi
           )
           if [ -n "${RUN_SERVICE_ACCOUNT}" ]; then
             args+=(--service-account "${RUN_SERVICE_ACCOUNT}")
