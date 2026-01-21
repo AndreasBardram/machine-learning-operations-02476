@@ -83,7 +83,7 @@ def test_main_builds_trainer_and_calls_fit(monkeypatch, dummy_import_module, mod
     monkeypatch.setattr(module, model_attr, _DummyModel)
     monkeypatch.setattr(module, datamodule_attr, _DummyDataModule)
     if module is train_transformer_module:
-        monkeypatch.setattr(module, "load_label_list", lambda data_root: ["label-a", "label-b"])
+        monkeypatch.setattr(module, "load_label_list", lambda _data_root: ["label-a", "label-b"])
     monkeypatch.setattr(
         module.hydra.core.hydra_config.HydraConfig,
         "get",
