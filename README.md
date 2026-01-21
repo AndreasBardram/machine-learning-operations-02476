@@ -7,6 +7,10 @@ DTU course: 02476, machine learning operations
 - invoke preprocess-data --subset  (if you want 10% subset instead)
 - invoke preprocess-data-transformer
 
+### DVC tracked artifacts
+- Data and trained models are tracked via DVC (`data.dvc`, `models.dvc`).
+- Use `dvc pull` to fetch them if they are missing locally.
+
 ### Running training modules: (requires data modules to be run first)
 - invoke train
 - invoke train --epochs 10 --subset (if you want to train for 10 epoch and on subset data)

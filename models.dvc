@@ -1,0 +1,6 @@
+outs:
+- md5: 10e2a53041ccc5d20f52611c58a92deb.dir
+  size: 803671538
+  nfiles: 2
+  hash: md5
+  path: models

@@ -6,7 +6,7 @@ Receipt line-item classifier with preprocessing, training (baseline + transforme
 ## Environment setup
 - Python: 3.11 (see `pyproject.toml`).
 - Install deps: `uv sync` (or `uv sync --group dev` for dev tools).
-- Data is tracked via DVC (`data.dvc`); if needed: `dvc pull`.
+- Data/models are tracked via DVC (`data.dvc`, `models.dvc`); if needed: `dvc pull`.
 
 ## Common commands (Invoke)
 - Preprocess baseline data: `uv run invoke preprocess-data` (add `--subset` for 10%).
