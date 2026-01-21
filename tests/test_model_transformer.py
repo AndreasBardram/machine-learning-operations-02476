@@ -103,7 +103,7 @@ def test_labels_update_config(monkeypatch):
             self.label2id = {}
 
     class _DummyModel(torch.nn.Module):
-        def __init__(self, _num_labels: int) -> None:
+        def __init__(self, num_labels: int) -> None:  # noqa: ARG002
             super().__init__()
             self.config = _Config()
 

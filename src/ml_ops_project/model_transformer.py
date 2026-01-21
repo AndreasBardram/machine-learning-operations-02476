@@ -53,7 +53,7 @@ class TransformerTransactionModel(pl.LightningModule):
     def training_step(self, batch):
         outputs = self(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
         loss = outputs.loss
-        if self.trainer is not None:
+        if getattr(self, "_trainer", None) is not None:
             self.log("train_loss", loss, prog_bar=True)
 
             preds = torch.argmax(outputs.logits, dim=1)
@@ -64,7 +64,7 @@ class TransformerTransactionModel(pl.LightningModule):
     def validation_step(self, batch):
         outputs = self(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
         loss = outputs.loss
-        if self.trainer is not None:
+        if getattr(self, "_trainer", None) is not None:
             self.log("val_loss", loss, prog_bar=True)
 
             preds = torch.argmax(outputs.logits, dim=1)
@@ -75,7 +75,7 @@ class TransformerTransactionModel(pl.LightningModule):
     def test_step(self, batch):
         outputs = self(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], labels=batch["labels"])
         loss = outputs.loss
-        if self.trainer is not None:
+        if getattr(self, "_trainer", None) is not None:
             self.log("test_loss", loss, prog_bar=True)
 
             preds = torch.argmax(outputs.logits, dim=1)
