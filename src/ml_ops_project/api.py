@@ -6,8 +6,11 @@ from typing import Any, Protocol
 
 import torch
 from fastapi import FastAPI, HTTPException
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field, model_validator
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+load_dotenv()
 
 try:
     from ml_ops_project.model_transformer import TransformerTransactionModel
