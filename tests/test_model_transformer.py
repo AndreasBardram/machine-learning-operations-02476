@@ -94,3 +94,88 @@ def test_configure_optimizers(model):
     optimizer = model.configure_optimizers()
     assert optimizer.__class__.__name__ == "AdamW"
     assert optimizer.defaults["lr"] == model.hparams.learning_rate
+
+
+def test_labels_update_config(monkeypatch):
+    class _Config:
+        def __init__(self) -> None:
+            self.id2label = {}
+            self.label2id = {}
+
+    class _DummyModel(torch.nn.Module):
+        def __init__(self, num_labels: int) -> None:
+            super().__init__()
+            self.config = _Config()
+
+        def forward(self, input_ids, attention_mask=None, labels=None):  # noqa: ARG002
+            logits = torch.randn(input_ids.size(0), 2)
+            return SimpleNamespace(loss=None, logits=logits)
+
+    def mock_from_pretrained(*args, **kwargs):  # noqa: ARG001
+        return _DummyModel(num_labels=kwargs["num_labels"])
+
+    monkeypatch.setattr(
+        "src.ml_ops_project.model_transformer.AutoModelForSequenceClassification.from_pretrained",
+        mock_from_pretrained,
+    )
+
+    labels = ["food", "rent"]
+    model = TransformerTransactionModel(num_labels=2, labels=labels)
+
+    assert model.model.config.id2label == {0: "food", 1: "rent"}
+    assert model.model.config.label2id == {"food": 0, "rent": 1}
+
+
+def test_freeze_backbone_uses_base_model(monkeypatch):
+    class _DummyModel(torch.nn.Module):
+        def __init__(self, num_labels: int) -> None:
+            super().__init__()
+            self.base_model = torch.nn.Linear(4, 4)
+            self.classifier = torch.nn.Linear(4, num_labels)
+            self.config = SimpleNamespace(id2label={}, label2id={})
+
+        def forward(self, input_ids, attention_mask=None, labels=None):  # noqa: ARG002
+            logits = self.classifier(torch.randn(input_ids.size(0), 4))
+            return SimpleNamespace(loss=None, logits=logits)
+
+    def mock_from_pretrained(*args, **kwargs):  # noqa: ARG001
+        return _DummyModel(num_labels=kwargs["num_labels"])
+
+    monkeypatch.setattr(
+        "src.ml_ops_project.model_transformer.AutoModelForSequenceClassification.from_pretrained",
+        mock_from_pretrained,
+    )
+
+    model = TransformerTransactionModel(num_labels=3, freeze_backbone=True)
+
+    assert all(not param.requires_grad for param in model.model.base_model.parameters())
+    assert all(param.requires_grad for param in model.model.classifier.parameters())
+
+
+def test_freeze_backbone_fallback_without_base_model(monkeypatch, capsys):
+    class _DummyModel(torch.nn.Module):
+        def __init__(self, num_labels: int) -> None:
+            super().__init__()
+            self.encoder = torch.nn.Linear(4, 4)
+            self.pre_classifier = torch.nn.Linear(4, 4)
+            self.classifier = torch.nn.Linear(4, num_labels)
+            self.config = SimpleNamespace(id2label={}, label2id={})
+
+        def forward(self, input_ids, attention_mask=None, labels=None):  # noqa: ARG002
+            logits = self.classifier(torch.randn(input_ids.size(0), 4))
+            return SimpleNamespace(loss=None, logits=logits)
+
+    def mock_from_pretrained(*args, **kwargs):  # noqa: ARG001
+        return _DummyModel(num_labels=kwargs["num_labels"])
+
+    monkeypatch.setattr(
+        "src.ml_ops_project.model_transformer.AutoModelForSequenceClassification.from_pretrained",
+        mock_from_pretrained,
+    )
+
+    model = TransformerTransactionModel(num_labels=3, freeze_backbone=True)
+    captured = capsys.readouterr()
+
+    assert "Could not identify base_model" in captured.out
+    assert all(not param.requires_grad for name, param in model.model.named_parameters() if "encoder" in name)
+    assert all(param.requires_grad for name, param in model.model.named_parameters() if "classifier" in name)
