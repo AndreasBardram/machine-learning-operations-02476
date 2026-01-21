@@ -22,7 +22,7 @@ class TransformerTransactionModel(pl.LightningModule):
         self.model.train()
 
         if labels:
-            id2label = {i: label for i, label in enumerate(labels)}
+            id2label = dict(enumerate(labels))
             label2id = {label: i for i, label in enumerate(labels)}
             self.model.config.id2label = id2label
             self.model.config.label2id = label2id
