@@ -5,7 +5,7 @@ model:
   num_labels: 10
   learning_rate: 2.0e-5
   weight_decay: 0.01
-  freeze_backbone: true
+  freeze_backbone: false
 
 data:
   data_path: "data"
