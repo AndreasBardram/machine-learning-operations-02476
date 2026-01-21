@@ -7,6 +7,9 @@ RUN apt update && \
 WORKDIR /app
 
 COPY uv.lock pyproject.toml README.md ./
+COPY .dvc/ .dvc/
+COPY data.dvc models.dvc ./
+RUN printf "[core]\n    no_scm = true\n" > .dvc/config.local
 RUN uv sync --locked --no-cache --no-install-project
 
 COPY src/ src/

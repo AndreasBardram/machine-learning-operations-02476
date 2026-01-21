@@ -12,7 +12,7 @@ pull_models_if_needed() {
     return 0
   fi
   echo "Models missing; pulling via DVC..."
-  uv run dvc pull models.dvc
+  DVC_NO_SCM=1 uv run dvc pull models.dvc
 }
 
 case "$mode" in
