@@ -104,7 +104,7 @@ docker run --rm ml-ops-tests
 All images use `uv` for Python dependency management with Python 3.12.
 
 ## Code Coverage:
-Coverage: 95.0%
+Coverage: 93.0% (run `uv run invoke test`)
 
 ### Goal
 Build an end-to-end ML system that classifies short transaction descriptions (receipt line-items / bank statement text) into spending categories (e.g., Food & Dining, Transportation, Utilities, Shopping). Input is a single text string, output is a predicted category + confidence. The project emphasizes a reproducible MLOps pipeline: data download + preprocessing, training + evaluation, experiment tracking, packaging and deployment of an inference API, and automated testing/CI.
