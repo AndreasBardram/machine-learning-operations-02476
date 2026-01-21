@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.error
 import urllib.request
 from contextlib import suppress
@@ -139,7 +140,8 @@ def main() -> None:
     _inject_styles()
 
     st.sidebar.markdown("### API control")
-    api_url = st.sidebar.text_input("API base URL", value="http://127.0.0.1:8000")
+    default_api_url = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+    api_url = st.sidebar.text_input("API base URL", value=default_api_url)
     api_url = api_url.rstrip("/")
 
     if st.sidebar.button("Check health"):

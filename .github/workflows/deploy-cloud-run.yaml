@@ -16,6 +16,7 @@ env:
   REGION: ${{ secrets.GCP_REGION }}
   REPOSITORY: mlops-repo
   SERVICE_NAME: ml-ops-api
+  UI_SERVICE_NAME: ml-ops-ui
   IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mlops-repo/ml-ops-app:${{ github.sha }}
 
 jobs:
@@ -67,8 +68,26 @@ jobs:
             --platform managed
             --allow-unauthenticated
             --port 8000
+            --memory 2Gi
           )
           if [ -n "${RUN_SERVICE_ACCOUNT}" ]; then
             args+=(--service-account "${RUN_SERVICE_ACCOUNT}")
           fi
           gcloud "${args[@]}"
+
+      - name: Deploy Streamlit UI to Cloud Run
+        run: |
+          api_url="$(gcloud run services describe "${SERVICE_NAME}" \
+            --region "${REGION}" \
+            --project "${PROJECT_ID}" \
+            --format='value(status.url)')"
+          gcloud run deploy "${UI_SERVICE_NAME}" \
+            --image "${IMAGE}" \
+            --region "${REGION}" \
+            --project "${PROJECT_ID}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8501 \
+            --memory 1Gi \
+            --args streamlit \
+            --set-env-vars "API_BASE_URL=${api_url}"

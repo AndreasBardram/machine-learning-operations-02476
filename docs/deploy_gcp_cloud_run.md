@@ -67,6 +67,7 @@ Add these repository secrets:
 ## What the workflow does
 - Waits for `Unit Tests` to finish successfully on `main`.
 - Builds and pushes a Docker image to Artifact Registry.
-- Deploys the image to Cloud Run.
+- Deploys the API service to Cloud Run with 2Gi memory.
+- Deploys the Streamlit UI as a separate Cloud Run service, pointing at the API URL.
 
 The workflow file is at `.github/workflows/deploy-cloud-run.yaml`.
