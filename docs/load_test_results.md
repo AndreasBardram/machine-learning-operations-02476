@@ -36,8 +36,8 @@ Batch test (batch size 8)
 
 ## Notes
 
-- Raw Locust outputs are stored as CSVs in the repo root:
-  - `locust_baseline_stats.csv`
-  - `locust_baseline_stats_history.csv`
-  - `locust_batch8_stats.csv`
-  - `locust_batch8_stats_history.csv`
+- Raw Locust outputs are stored under `docs/load_tests/`:
+  - `docs/load_tests/locust_baseline_stats.csv`
+  - `docs/load_tests/locust_baseline_stats_history.csv`
+  - `docs/load_tests/locust_batch8_stats.csv`
+  - `docs/load_tests/locust_batch8_stats_history.csv`
