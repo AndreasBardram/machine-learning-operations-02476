@@ -30,6 +30,10 @@ By default it targets `http://127.0.0.1:8000`. Start the FastAPI server first or
 The integration tests call a running API over HTTP (via `httpx`) and use `MYENDPOINT` to know where it is deployed.
 If `MYENDPOINT` is not set, these tests are skipped.
 
+## Unit Tests
+Run the full unit test suite with coverage:
+- `uv run invoke test`
+
 Run locally with a lightweight dummy predictor (fast startup, no model downloads):
 - `USE_DUMMY_PREDICTOR=1 uv run uvicorn src.ml_ops_project.api:app --host 127.0.0.1 --port 8000`
 - `MYENDPOINT=http://127.0.0.1:8000 uv run pytest -q tests/integrationtests`
