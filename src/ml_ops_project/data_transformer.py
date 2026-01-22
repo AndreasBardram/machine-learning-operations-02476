@@ -20,7 +20,7 @@ def load_label_list(data_root: Path) -> list[str]:
         ds.save_to_disk(raw_path)
     ds = load_from_disk(str(raw_path))
     full_ds_for_labels = ds["train"] if hasattr(ds, "keys") and "train" in ds else ds
-    return sorted(full_ds_for_labels.unique("category"))
+    return sorted({c.strip() for c in full_ds_for_labels.unique("category") if c})
 
 
 class TextDataset(Dataset):
