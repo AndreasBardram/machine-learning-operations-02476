@@ -300,7 +300,7 @@ CI lives in `.github/workflows/`. `tests.yaml` runs Ruff linting plus a matrix o
 >
 > Answer:
 
-Experiments are Hydra-driven. Defaults live in `configs/default.yaml` and `configs/transformer_default.yaml`, with overrides in `configs/experiment/*.yaml`. Running `uv run invoke train --epochs 10 experiment=baseline_full` trains the TF-IDF model; `uv run invoke train-transformer experiment=transformer_full` runs DistilBERT with different lr/batch sizes. CLI flags can override any config key (e.g., `trainer.max_epochs=3 data.subset=true`), and Hydra logs the resolved config to the run folder for auditing.
+Experiments are driven by Hydra in conjunction with Pytorch Lightning. Defaults live in `configs/default.yaml` and `configs/transformer_default.yaml`, with overrides in `configs/experiment/*.yaml`. Running `uv run invoke train --epochs 10 experiment=baseline_full` trains the simple feedforward linear model; `uv run invoke train-transformer experiment=transformer_full` runs DistilBERT with different lr/batch sizes. CLI flags can override any config key (e.g., `trainer.max_epochs=3 data.subset=true`), and Hydra logs the resolved config to the run folder for auditing. As we are using Pytorch Lightning, we are also doing a lot of instantiation of components (model, datamodule, callbacks, loggers etc.) via the config files. This makes the code in the training scripts very minimal as most of the complexity is defined in the config files.
 
 ### Question 13
 
