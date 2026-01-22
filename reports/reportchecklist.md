@@ -11,8 +11,8 @@
 - [x] question 9   
 - [ ] question 10   
 - [ ] question 11   
--Otto [ ] question 12   
--Otto [ ] question 13   
+-Otto [x] question 12   
+-Otto [x] question 13   
 -Otto [ ] question 14   
 - [ ] question 15   
 -Otto [ ] question 16   

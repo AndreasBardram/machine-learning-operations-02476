@@ -315,7 +315,7 @@ Experiments are driven by Hydra in conjunction with Pytorch Lightning. Defaults 
 >
 > Answer:
 
-Hydra logs the resolved config for each run, and we seed numpy/torch for determinism. Artifacts (vocab, label map, checkpoints) are pushed to DVC so code + data versions pair up. Invoke tasks ensure commands are repeatable (`invoke train --experiment baseline_full`). Metrics are exported to W&B and persisted locally (CSV + plots) so we can re-plot later, and checkpoints are named by experiment for easy lookup. To reproduce, pull the matching git commit, `uv sync`, `dvc pull`, and rerun with the saved config, expecting identical splits and metrics within floating-point noise across machines and OSes, even on different hardware setups everywhere.
+Hydra logs the resolved config for each run, and we seed numpy/torch for determinism. Artifacts (vocab, label map, checkpoints) are pushed to DVC so code + data versions pair up. Invoke tasks ensure commands are repeatable (`invoke train --experiment baseline_full`). Metrics and model checkpoints are exported to W&B and persisted locally (CSV + plots) so we can re-plot later, and checkpoints are named by experiment for easy lookup. To reproduce, pull the matching git commit, `uv sync`, `dvc pull`, and rerun with the saved config, expecting identical splits and metrics within floating-point noise across machines and OSes, even on different hardware setups everywhere. Training can also be run in a docker container to ensure environment parity.
 
 ### Question 14
 
