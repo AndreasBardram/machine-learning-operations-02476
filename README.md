@@ -153,19 +153,78 @@ docker run --rm -v "$PWD/data:/app/data" -v "$PWD/models:/app/models" ml-ops-app
 ```txt
 .
 ├── AGENTS.md                     # Local agent instructions
-├── Dockerfile                    # Monolithic container
+├── Dockerfile                    # Monolithic container (multi-mode entrypoint)
 ├── Makefile                      # Format/check + coverage update helper
 ├── config.yaml                   # Root config entry
 ├── configs/                      # Hydra configs and experiments
+│   ├── default.yaml
+│   ├── subset.yaml
+│   ├── transformer_default.yaml
+│   ├── transformer_default_subset.yaml
+│   ├── transformer_default_subset_2.yaml
+│   ├── sweep.yaml
+│   └── experiment/
+│       ├── baseline_full.yaml
+│       ├── baseline_subset.yaml
+│       └── transformer_full.yaml
 ├── data.dvc                      # DVC data tracking
 ├── models.dvc                    # DVC model tracking
 ├── docker/                       # Container entrypoint
+│   └── entrypoint.sh
 ├── dockerfiles/                  # Component Dockerfiles
+│   ├── api.dockerfile
+│   ├── eval.dockerfile
+│   ├── test.dockerfile
+│   ├── train.dockerfile
+│   └── train_transformer.dockerfile
 ├── docs/                         # MkDocs docs + load test results
+│   ├── README.md
+│   ├── deploy_gcp_cloud_run.md
+│   ├── mkdocs.yaml
+│   ├── source/
+│   │   └── index.md
+│   └── load_tests/
+│       ├── locust_baseline_stats.csv
+│       ├── locust_baseline_stats_history.csv
+│       ├── locust_baseline_failures.csv
+│       ├── locust_baseline_exceptions.csv
+│       ├── locust_batch8_stats.csv
+│       ├── locust_batch8_stats_history.csv
+│       ├── locust_batch8_failures.csv
+│       └── locust_batch8_exceptions.csv
 ├── notebooks/                    # Exploratory notebooks
+│   └── compare_data.ipynb
 ├── reports/                      # Reports and figures
 ├── src/ml_ops_project/           # Core Python package
+│   ├── __init__.py
+│   ├── api.py
+│   ├── data.py
+│   ├── data_transformer.py
+│   ├── model.py
+│   ├── model_transformer.py
+│   ├── train.py
+│   ├── train_transformer.py
+│   ├── evaluate.py
+│   ├── visualize.py
+│   ├── streamlit_app.py
+│   ├── onnx_fastapi.py
+│   ├── convert_model_to_onnx.py
+│   ├── run_onnx_model.py
+│   ├── view_onnx_graph.py
+│   └── test_onnx_api.py
 ├── tests/                        # Unit + integration tests
+│   ├── integrationtests/
+│   │   ├── __init__.py
+│   │   └── test_apis.py
+│   ├── __init__.py
+│   ├── test_api.py
+│   ├── test_api_more.py
+│   ├── test_data.py
+│   ├── test_data_transformer.py
+│   ├── test_data_transformer_prepare_data.py
+│   ├── test_model.py
+│   ├── test_model_transformer.py
+│   └── test_train_scripts.py
 ├── locustfile.py                 # Load testing
 ├── tasks.py                      # Invoke tasks
 ├── pyproject.toml                # Project metadata and deps
@@ -175,5 +234,17 @@ docker run --rm -v "$PWD/data:/app/data" -v "$PWD/models:/app/models" ml-ops-app
 └── ToDo                          # Project checklist/notes
 ```
 
-Coverage: 0.0%
-(Makefile target `make test` updates this line based on `coverage.xml`.)
+Coverage report 21-01-2026
+
+Name                                      Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------
+src/ml_ops_project/__init__.py                0      0   100%
+src/ml_ops_project/api.py                   146     21    86%   47, 56-57, 104-117, 123, 138-139, 155
+src/ml_ops_project/data.py                  106      5    95%   55-56, 138-139, 143
+src/ml_ops_project/data_transformer.py       85      3    96%   18-20
+src/ml_ops_project/model.py                  54      8    85%   84-94
+src/ml_ops_project/model_transformer.py      57     12    79%   57-61, 68-72, 79-83
+src/ml_ops_project/train.py                  44      1    98%   62
+src/ml_ops_project/train_transformer.py      45      1    98%   63
+-----------------------------------------------------------------------
+TOTAL                                       537     51    91%
