@@ -328,7 +328,7 @@ async def data_drift_report():
     Endpoint for data drift monitoring.
     """
     from evidently import Dataset, DataDefinition
-    from evidently.presets DataDriftPreset
+    from evidently.presets import DataDriftPreset
     from google.cloud import storage
 
     # load reference data (training data)
