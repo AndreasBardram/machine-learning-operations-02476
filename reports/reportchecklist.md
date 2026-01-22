@@ -9,7 +9,7 @@
 - [x] question 7   
 - [x] question 8   
 - [x] question 9   
-- [ ] question 10   
+-Oscar [x] question 10   
 -Andreas [X] question 11   
 -Otto [x] question 12   
 -Otto [x] question 13   
