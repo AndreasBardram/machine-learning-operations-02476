@@ -1,4 +1,6 @@
 import os
+import json
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -6,7 +8,7 @@ from typing import Any, Protocol
 
 import torch
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field, model_validator
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -196,8 +198,42 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def save_data_to_bucket(texts: list[str], predictions: list[dict], model_id: str) -> None:
+    from google.cloud import storage
+
+    bucket_name = os.getenv("DATA_BUCKET_NAME")
+    if not bucket_name:
+        raise ValueError("DATA_BUCKET_NAME environment variable is not set.")
+
+    timestamp = datetime.now(tz=timezone.utc)
+
+    data = {
+        "timestamp": timestamp.isoformat(),
+        "model_id": model_id,
+        "texts": texts,
+        "predictions": predictions,
+    }
+
+    print("data", data)
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(f"predictions/predictions_{timestamp}.json")
+    blob.upload_from_string(json.dumps(data))
+
+
 @app.post("/predict", response_model=PredictResponse)
-def predict(req: PredictRequest) -> PredictResponse:
+def predict(req: PredictRequest, background_tasks: BackgroundTasks) -> PredictResponse:
+    """
+    Make predictions for transaction descriptions.
+    And save the results to a data bucket for later analysis.
+
+    Args:
+        req (PredictRequest): The prediction request containing text(s).
+    Returns:
+        PredictResponse: The prediction results.
+
+    """
     predictor: Predictor | None = getattr(app.state, "predictor", None)
     if predictor is None:
         raise HTTPException(status_code=503, detail="Model not loaded yet.")
@@ -208,4 +244,9 @@ def predict(req: PredictRequest) -> PredictResponse:
         raise HTTPException(status_code=422, detail="No non-empty texts provided.")
 
     preds = predictor.predict(texts)
+
+    # Save data to bucket in the background
+    pred_dicts = [pred.model_dump() for pred in preds]
+    background_tasks.add_task(save_data_to_bucket, texts, pred_dicts, predictor.model_id)
+
     return PredictResponse(predictions=preds, model=predictor.model_id)
