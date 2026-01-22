@@ -6,9 +6,25 @@ on:
       - main
     tags:
       - "v*"
+    paths:
+      - "dockerfiles/**"
+      - "src/**"
+      - "configs/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "README.md"
+      - ".github/workflows/docker-build.yaml"
   pull_request:
     branches:
       - main
+    paths:
+      - "dockerfiles/**"
+      - "src/**"
+      - "configs/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "README.md"
+      - ".github/workflows/docker-build.yaml"
   workflow_dispatch: {}
 
 jobs:

@@ -4,6 +4,20 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "Dockerfile"
+      - "docker/**"
+      - "src/**"
+      - "configs/**"
+      - "config.yaml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "README.md"
+      - ".dvc/**"
+      - "data.dvc"
+      - "models.dvc"
+      - "dvc.lock"
+      - ".github/workflows/deploy-cloud-run.yaml"
   workflow_dispatch: {}
 
 permissions:

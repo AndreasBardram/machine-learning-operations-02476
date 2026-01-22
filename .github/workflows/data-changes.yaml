@@ -9,6 +9,8 @@ on:
       - "configs/**"
       - "config.yaml"
       - ".dvc/**"
+      - "data.dvc"
+      - "models.dvc"
       - "dvc.lock"
       - "dvc.yaml"
   pull_request:
@@ -19,6 +21,8 @@ on:
       - "configs/**"
       - "config.yaml"
       - ".dvc/**"
+      - "data.dvc"
+      - "models.dvc"
       - "dvc.lock"
       - "dvc.yaml"
   workflow_dispatch: {}
