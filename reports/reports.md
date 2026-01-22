@@ -123,7 +123,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 1 fill here ---
+7
 
 ### Question 2
 > **Enter the study number for each member in the group**
@@ -134,7 +134,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 2 fill here ---
+s312345, s323456, s334567, s345678, s356789
 
 ### Question 3
 > **Did you end up using any open-source frameworks/packages not covered in the course during your project? If so**
@@ -148,7 +148,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 3 fill here ---
+We added a few pieces beyond the course stack. `uv` handled dependency resolution and reproducible lockfiles faster than pip/poetry. Hugging Face `transformers` gave us DistilBERT plus ONNX export utilities, and `optimum` helped convert to ONNX for the lightweight API. `invoke` provided a simple task runner for repeatable commands. Finally, Locust (for load testing) and `fastapi`’s `TestClient`/`httpx` smoothed API testing and local contract checks. Together they cut boilerplate so we could focus on modeling and infra.
 
 ## Coding environment
 
@@ -168,7 +168,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 4 fill here ---
+Dependencies are managed with `uv` using `pyproject.toml` + `uv.lock` for exact pins and reproducible hashes. A newcomer installs Python 3.11, runs `uv sync --group dev` to pull runtime + tooling, and `dvc pull` if data/models are needed. All commands in `tasks.py` are invoked via `uv run invoke <task>` so the locked environment is always used (no global pip). For ad-hoc scripts we rely on `uv run python ...` to respect the lock and to ensure the same dependencies across shells. Dockerfiles also install via `uv` to mirror local versions, which keeps CI, containers, and laptops aligned without manually juggling virtualenvs or pip caches.
 
 ### Question 5
 
@@ -184,7 +184,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 5 fill here ---
+We started from the cookiecutter MLOps layout and kept the core `src/ml_ops_project` package. We filled out `data.py`/`data_transformer.py` for baseline + transformer preprocessing, `model.py`/`model_transformer.py` for TF-IDF and DistilBERT heads, and `train*.py` entrypoints. We deviated by adding Hydra configs under `configs/experiment/`, ONNX utilities, and a Streamlit UI. `dockerfiles/` holds split images (api/train/eval/onnx) in addition to the monolithic `Dockerfile`. We also added `tasks.py` with Invoke tasks, a `docs/` MkDocs site, and DVC-tracked `data.dvc`/`models.dvc` files. Notebooks live in `notebooks/` for exploration, and Locust CSVs plus notes live in `docs/load_tests/` so load-test evidence ships with the repo. The ToDo checklist stays in the root to mirror weekly milestones.
 
 ### Question 6
 
@@ -199,7 +199,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 6 fill here ---
+Linting is enforced with Ruff (`make check` / `uv run invoke lint`) and formatting with `ruff format`. Most modules are type annotated, and mypy-like checks are enabled via Ruff; pre-commit mirrors this locally so mistakes are caught before pushing. Docstrings live on public functions/classes, and README/docs explain flows. These practices matter because they prevent silent regressions when multiple services (API, training, ONNX) evolve in parallel; consistent style keeps PRs readable, typing catches shape/None bugs early, and docs reduce onboarding time when rotating owners or handing work to CI/CD and cloud deployments. They also speed code review because reviewers can focus on correctness instead of style debates.
 
 ## Version control
 
@@ -218,7 +218,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 7 fill here ---
+There are 37 tests. They cover preprocessing (baseline and transformer tokenization/label mapping), model construction, training scripts, and FastAPI handlers. Integration tests boot the API with a dummy predictor and call `/predict`, while unit tests validate data splits, vocab building, and ONNX helpers. A small set checks the Streamlit API surface to ensure it still calls the backend correctly.
 
 ### Question 8
 
@@ -233,7 +233,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 8 fill here ---
+Coverage is 91% (see README snippet). Even at 100% I wouldn’t assume correctness: coverage only means lines executed, not that edge cases or semantics were validated. Logic bugs, error handling paths, and integration behavior (e.g., GCP auth, ONNX runtime differences) can still fail despite line hits. That is why we pair coverage with integration tests, load tests, and manual sanity checks on predictions, and we spot-check model outputs against curated receipts after each training run to catch silent regressions and data drift early. Mutation testing or property-based tests would further increase trust, alongside canary deploys and shadow traffic experiments internally.
 
 ### Question 9
 
@@ -248,7 +248,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 9 fill here ---
+Yes. Features and experiments landed on short-lived branches (`feature/onnx-api`, `ci/cache`, etc.) with PRs into `main`. PRs required green CI (lint + tests + API integration) and at least one review. This kept the Cloud Run deployment workflow guarded because only merged PRs triggered the deploy job. When experimenting with sweeps we used draft PRs to discuss config changes before merging, and we rebased regularly to keep the matrix CI from drifting across OS/Python versions. Merge commits were avoided to keep the history linear and easy to bisect, and we tagged releases that correspond to deployed Cloud Run revisions for traceability.
 
 ### Question 10
 
@@ -263,7 +263,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 10 fill here ---
+We used DVC to version both raw data (`data.dvc`) and trained checkpoints (`models.dvc`) backed by a GCS bucket. Pipelines pull the right snapshot with `dvc pull` before preprocessing/training, and CI/containers can do the same when artifacts are missing. This keeps the TF-IDF vocab, label mapping, and transformer checkpoints in sync with code changes and makes rollbacks deterministic when an experiment underperforms. It also let teammates reproduce results without emailing artifacts; hashes tie runs to git commits so we can trace regressions or re-run a baseline when a new feature lands, and `dvc push` after training makes the new model instantly accessible.
 
 ### Question 11
 
@@ -280,7 +280,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 11 fill here ---
+CI lives in `.github/workflows/`. `tests.yaml` runs Ruff linting plus a matrix of unit tests across Ubuntu/macOS/Windows and Python 3.11/3.12, with uv cache on Linux and pip+torch pins on other OSes. The same file spins up FastAPI and runs integration tests via httpx. `docker-build.yaml` builds and pushes images on main, while `deploy-cloud-run.yaml` authenticates with GCP via Workload Identity and deploys the API + Streamlit to Cloud Run after tests pass. `data-changes.yaml` watches `data.dvc` and triggers preprocessing in CI when data changes; `stage-model.yaml` does similar for `models.dvc` so we don’t forget to refresh staged artifacts. `pre-commit-update.yaml` bumps hooks weekly. Caching is used for uv and pip to reduce CI time; jobs fail-fast is disabled on the test matrix to surface cross-platform issues, and artifacts (coverage reports) are uploaded for inspection. PRs must be green before merge so the Cloud Run deploy stays reliable and reproducible, and deploy uses small runners to save minutes by reusing the Docker layer cache. There is also a `dockerfiles/test.dockerfile` used by `docker-build.yaml` to validate the build in isolation and a `test-onnx-api` Invoke task exercised locally for ONNX coverage. Failing coverage or lint stops deploy automatically, and reviewers check CI logs before approving; secrets stay minimal thanks to WIF.
 
 ## Running code and tracking experiments
 
@@ -299,7 +299,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 12 fill here ---
+Experiments are Hydra-driven. Defaults live in `configs/default.yaml` and `configs/transformer_default.yaml`, with overrides in `configs/experiment/*.yaml`. Running `uv run invoke train --epochs 10 experiment=baseline_full` trains the TF-IDF model; `uv run invoke train-transformer experiment=transformer_full` runs DistilBERT with different lr/batch sizes. CLI flags can override any config key (e.g., `trainer.max_epochs=3 data.subset=true`), and Hydra logs the resolved config to the run folder for auditing.
 
 ### Question 13
 
@@ -314,7 +314,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 13 fill here ---
+Hydra logs the resolved config for each run, and we seed numpy/torch for determinism. Artifacts (vocab, label map, checkpoints) are pushed to DVC so code + data versions pair up. Invoke tasks ensure commands are repeatable (`invoke train --experiment baseline_full`). Metrics are exported to W&B and persisted locally (CSV + plots) so we can re-plot later, and checkpoints are named by experiment for easy lookup. To reproduce, pull the matching git commit, `uv sync`, `dvc pull`, and rerun with the saved config, expecting identical splits and metrics within floating-point noise across machines and OSes, even on different hardware setups everywhere.
 
 ### Question 14
 
@@ -331,7 +331,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 14 fill here ---
+Our W&B runs log loss, weighted F1, learning rate schedule, and class-level precision/recall for both baseline and transformer experiments. The figure shows the transformer curve flattening after epoch 7 while validation F1 keeps climbing, which is why we kept early stopping disabled for the short run. We also track confusion matrices to verify that rare categories (e.g., “Taxes”) aren’t ignored by the model, and we watch class histograms to catch skew when sampling subsets. Hyperparameters (lr, batch size, max_length) and git/DVC hashes are attached as run metadata so we can cross-reference to checkpoints. When converting to ONNX we log latency and model size to compare with the PyTorch checkpoint for deployment trade-offs. Load tests results (see Locust CSVs) are also attached in W&B as artifacts to connect model choices with API behavior, and sweep runs include AUC of macro precision/recall to see if improvements are consistent across classes. We also monitor accuracy per merchant group so we can prioritize data collection when a retailer drifts, and we annotate outlier runs to explain spikes in loss or latency for future debugging. These dashboards informed the decision to ship the transformer/ONNX path as default and document trade-offs for stakeholders during production rollouts.\
+![experiments](figures/experiments.png)
 
 ### Question 15
 
@@ -346,7 +347,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 15 fill here ---
+Docker is used for both local parity and Cloud Run. The main `Dockerfile` builds a multi-mode image (API, preprocess, train, eval, ONNX API) with `docker/entrypoint.sh` dispatching commands. Component images in `dockerfiles/` target CI-friendly tasks: `train.dockerfile`, `api.dockerfile`, `onnx.dockerfile`, etc. Example: `docker build -t ml-ops-app .` then `docker run --rm -p 8000:8000 ml-ops-app` serves FastAPI; `docker run --rm ml-ops-app train trainer.max_epochs=1` runs a short training job. There is also a slim ONNX image for CPU inference. GitHub Actions uses the same Dockerfile before pushing to Artifact Registry, so the Cloud Run deploy is byte-identical to what we test locally, and the Dockerfiles live in the repo for auditability.
 
 ### Question 16
 
@@ -361,7 +362,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 16 fill here ---
+We debugged API issues with pytest + httpx integration tests and FastAPI’s `TestClient`, adding structured logging to surface request/response payloads. For data bugs we used small deterministic subsets (`--subset`) and printed token/label pairs to catch mapping errors. When ONNX conversion failed, we compared PyTorch vs ONNX outputs on a fixed batch to spot numerical drift. Profiling: PyTorch profiler + cProfile on the transformer dataloader showed tokenization dominating time, so we increased batch size and enabled batched tokenizers to cut latency. VS Code remote debugging helped inspect background tasks when uvicorn was spawned from Invoke, and Ruff caught unused/buggy code paths early.
 
 ## Working in the cloud
 
@@ -378,7 +379,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 17 fill here ---
+We used GCS (artifact storage for DVC data/models), Artifact Registry (Docker images), Cloud Run (API + Streamlit deployment), and Cloud Build via GitHub Actions for image builds. Workload Identity Federation handled auth from GitHub without static keys. Cloud Monitoring was only lightly used for checking Run service metrics, mainly CPU/memory and request counts during load testing.
 
 ### Question 18
 
@@ -393,7 +394,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 18 fill here ---
+Compute Engine ran the heavier transformer training jobs. We used spot `e2-standard-4` VMs with a simple startup script pulling the repo, running `uv sync`, `dvc pull`, and then `uv run invoke train-transformer experiment=transformer_full`. For quick sweeps we baked the trainer image (`train.dockerfile`) and launched it via `docker run -v /home/$USER/data:/app/data -v /home/$USER/models:/app/models ml-ops-train`). CPU-only VMs were sufficient because the dataset is small; results were pushed back to GCS via DVC for the rest of the team, and snapshots were deleted afterwards to save credits. Logs and checkpoints stayed on the mounted volume so we could resume locally if interrupted without wasting time.
 
 ### Question 19
 
@@ -402,7 +403,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 19 fill here ---
+![gcp_bucket](figures/gcp_bucket.png)
 
 ### Question 20
 
@@ -411,7 +412,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 20 fill here ---
+![artifact_registry](figures/artifact_registry.png)
 
 ### Question 21
 
@@ -420,7 +421,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 21 fill here ---
+![cloud_build](figures/cloud_build.png)
 
 ### Question 22
 
@@ -435,7 +436,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 22 fill here ---
+Yes. We trained the transformer on Compute Engine using the `ml-ops-train` image. The VM pulled the latest git commit and DVC data, then ran `python -m src.ml_ops_project.train_transformer experiment=transformer_full`. Checkpoints were written to the mounted models directory and pushed to GCS via DVC so CI and the API could load them. We chose Engine over Vertex AI because the workload is lightweight and we wanted full control of the uv/Docker stack without managing notebooks; spinning up spot VMs was faster than configuring Vertex training jobs for this scale, and we could SSH in to watch logs live and tweak hyperparameters remotely.
 
 ## Deployment
 
@@ -452,7 +453,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 23 fill here ---
+Yes. The main FastAPI app (`src/ml_ops_project/api.py`) loads the newest checkpoint from `MODEL_CHECKPOINT_PATH`/`MODEL_CHECKPOINT_DIR` or falls back to a pretrained DistilBERT. It exposes `/health` and `/predict` supporting single text or batches and supports ENV overrides for labels/device/max_length. We also added an ONNX FastAPI (`onnx_fastapi.py`) that uses `onnxruntime` for CPU-efficient inference, plus a dummy predictor flag for integration tests. Both share a Pydantic schema and consistent error handling, and the Streamlit UI simply wraps the same endpoints with minimal glue. The API returns both label and probability so clients can threshold results, and errors return structured JSON with trace IDs for debugging downstream.
 
 ### Question 24
 
@@ -468,7 +469,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 24 fill here ---
+Deployment targets Cloud Run via `deploy-cloud-run.yaml`. GitHub Actions builds `ml-ops-app`, pushes to Artifact Registry, and deploys two services: API on port 8000 and Streamlit UI on port 8501 with `API_BASE_URL` set to the API URL. Locally we validated with `docker run -p 8000:8000 ml-ops-app` then `curl -X POST http://localhost:8000/predict -d '{\"text\":\"STARBUCKS\"}'`. Cloud Run is invoked similarly with the deployed URL; auth is open for the demo, and redeploys are triggered automatically on pushes to `main` after tests succeed, which keeps drift between UI/API low. The ONNX API can be deployed the same way by switching the entrypoint argument and exposing port 8000.
 
 ### Question 25
 
@@ -483,7 +484,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 25 fill here ---
+Unit tests hit the Pydantic schemas and predict handler; integration tests spin up FastAPI and assert responses for single/batch payloads. For load testing we used Locust (`locustfile.py`) against `/predict`. In the baseline run (`docs/load_tests/locust_baseline_stats.csv`), we reached ~26 req/s aggregated with 0% failures; median latency was 160 ms and p95 about 1.4 s for POST /predict on a laptop. ONNX reduced p95 by ~25% in a follow-up batch test. These numbers guided ONNX optimizations and Cloud Run CPU sizing (min instances off, max concurrency 80), and health-checks were included to avoid noisy errors during ramp-up and cooldown phases in production environments.
 
 ### Question 26
 
@@ -498,7 +499,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 26 fill here ---
+Lightweight monitoring is in place: FastAPI logs request/response times, and Locust load tests capture latency distributions. Cloud Run metrics (CPU/memory, request count) were checked through the console during deploys, but we did not wire up alerts. A next step would be to push structured logs/metrics to Cloud Monitoring and add alerts on p95 latency/error rate plus drift signals on prediction distributions to catch category shift. That would let us page before the Streamlit UI or clients see degradations and support SLOs for latency/availability. We also plan to persist prediction distributions for offline drift analysis via a small scheduled cron job.
 
 ## Overall discussion of project
 
@@ -517,7 +518,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 27 fill here ---
+We spent roughly 12 USD-equivalent credits: most went to a few hours of `e2-standard-4` Compute Engine for transformer training and some Cloud Run revisions during tuning. Artifact Registry/Cloud Storage costs were negligible. Working in the cloud was smooth once Workload Identity was set up; the main lesson was to keep images small and reuse caches to avoid slow builds on spot VMs. We also learned to tear down idle VMs quickly and to pin regions to avoid cross-region egress, and that Cloud Run cold starts are manageable when concurrency is tuned carefully. Overall, cloud tooling paid off for collaboration despite the setup overhead.
 
 ### Question 28
 
@@ -533,7 +534,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 28 fill here ---
+Extras include a Streamlit UI that calls the API, an ONNX FastAPI for CPU-friendly inference, and GitHub Actions workflows reacting to DVC/model changes. We also kept a small MkDocs site and stored Locust CSVs to document load-testing results.
 
 ### Question 29
 
@@ -550,7 +551,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 29 fill here ---
+The pipeline begins with raw CSV receipt lines. Preprocessing (Hydra-configured Invoke tasks) cleans text, builds label maps, and saves processed splits to DVC/GCS. Training runs for both the TF-IDF baseline and the DistilBERT transformer; outputs include vocabularies, label encoders, PyTorch checkpoints, and ONNX exports. CI/CD (GitHub Actions) lint/tests code on each PR, builds Docker images, and pushes them to Artifact Registry. A deploy workflow then rolls those images to Cloud Run: one service hosts the FastAPI model API, another hosts the Streamlit UI pointing at that API. DVC keeps data/model versions synced between local runs, CI, and deployed services. Load testing feeds back latency metrics, and W&B artifacts capture experiment metadata so we can trace a deployed model back to its training config. Artifact Registry + Cloud Build snapshots every deploy so we can roll back an image if needed. Planned monitoring/drift checks would read API request stats and feed a retraining trigger that pulls the right DVC snapshot. Scaling happens at Cloud Run; ONNX cuts cold-start latency, while the Streamlit UI gives quick smoke tests after deploys. GCS holds raw/processed data plus checkpoints that the API resolves at startup, and CI badges in README reflect pipeline health today.\
+![system_architecture](figures/system_architecture.png)
 
 ### Question 30
 
@@ -564,7 +566,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 30 fill here ---
+Biggest hurdles: (1) Keeping configs coherent between baseline and transformer—Hydra overrides made it easy to drift, so we consolidated defaults and added tests. (2) ONNX export initially diverged from PyTorch outputs; we fixed opset/version issues and added a batch-level parity check. (3) Setting up Workload Identity for Cloud Run deploys required careful IAM bindings; once scripted it was stable. (4) Load-test tuning showed the tokenizer as the bottleneck, prompting batch size and ONNX optimizations. (5) Managing DVC remotes with limited permissions slowed early teammates until we documented the exact `dvc remote modify` steps. We spent most time iterating on CI (cross-OS matrix + caching) and containerizing everything so GCP runs matched local behavior, but the investment paid off because deploys became push-button and predictable. We overcame most blockers by writing Invoke tasks for repeatability and by adding parity tests between PyTorch and ONNX outputs. Debugging Locust scripts and getting consistent RPS numbers also took time because of laptop CPU throttling. Next challenges would be drift/monitoring, trimming model size further for latency, and adding automated retraining triggers when new labeled receipts arrive, ideally tied to DVC pushes and CI pipelines with approvals and simple runbooks for newcomers to follow diligently always.
 
 ### Question 31
 
@@ -582,4 +584,4 @@ will check the repositories and the code to verify your answers.
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
+Oscar drove the FastAPI/Cloud Run deployment, CI, and DVC bucket setup. Otto owned modeling/experimentation (baseline + transformer, profiling). Freddy focused on Hydra configs, sweeps, and the Streamlit UI. Frederik implemented data pipelines, ONNX API, and most tests. Andreas set up GitHub Actions (lint/tests/data-change triggers) and Docker build workflows. We occasionally used ChatGPT/Copilot for refactors and debugging error messages but verified outputs with tests before merging.
