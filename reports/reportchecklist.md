@@ -26,7 +26,7 @@
 - freddy [ ] question 24   
 - freddy [ ] question 25   
 - freddy [ ] question 26   
-- [ ] question 27   
+- freddy [ ] question 27   
 - [ ] question 28   
 - [ ] question 29   
 - [ ] question 30   
