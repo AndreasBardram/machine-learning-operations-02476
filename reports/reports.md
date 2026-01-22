@@ -395,7 +395,7 @@ We used GCS (artifact storage for DVC data/models), Artifact Registry (Docker im
 >
 > Answer:
 
-Compute Engine ran the heavier transformer training jobs. We used spot `e2-standard-4` VMs with a simple startup script pulling the repo, running `uv sync`, `dvc pull`, and then `uv run invoke train-transformer experiment=transformer_full`. For quick sweeps we baked the trainer image (`train.dockerfile`) and launched it via `docker run -v /home/$USER/data:/app/data -v /home/$USER/models:/app/models ml-ops-train`). CPU-only VMs were sufficient because the dataset is small; results were pushed back to GCS via DVC for the rest of the team, and snapshots were deleted afterwards to save credits. Logs and checkpoints stayed on the mounted volume so we could resume locally if interrupted without wasting time.
+We did not provision Compute Engine VMs directly. Instead, we used Cloud Run to deploy our FastAPI and Streamlit services. Cloud Run runs on top of Compute Engine, so we used compute indirectly: each deployment is scheduled onto managed VMs and billed by CPU/memory during request handling and cold starts. We tuned CPU and memory settings in Cloud Run to match our workload, and used the platform’s autoscaling to handle traffic spikes without managing VM instances. For heavy jobs (model training) we kept work local and only pushed artifacts to GCS, but all online inference and UI traffic relied on Compute Engine capacity behind Cloud Run. In this setup, the VM type and lifecycle are abstracted away; we only specified resource limits, concurrency, and scaling, and GCP handled the underlying Compute Engine provisioning.
 
 ### Question 19
 
@@ -404,7 +404,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-![gcp_bucket](figures/gcp_bucket.png)
+check reports/figures/bucket.png
 
 ### Question 20
 
@@ -413,7 +413,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-![artifact_registry](figures/artifact_registry.png)
+check reports/figures/registry.png
 
 ### Question 21
 
@@ -422,7 +422,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-![cloud_build](figures/cloud_build.png)
+check reports/figures/build.png
 
 ### Question 22
 
@@ -437,7 +437,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-Yes. We trained the transformer on Compute Engine using the `ml-ops-train` image. The VM pulled the latest git commit and DVC data, then ran `python -m src.ml_ops_project.train_transformer experiment=transformer_full`. Checkpoints were written to the mounted models directory and pushed to GCS via DVC so CI and the API could load them. We chose Engine over Vertex AI because the workload is lightweight and we wanted full control of the uv/Docker stack without managing notebooks; spinning up spot VMs was faster than configuring Vertex training jobs for this scale, and we could SSH in to watch logs live and tweak hyperparameters remotely.
+No. We did not train in the cloud; all training was done locally on a laptop. We ran the baseline and transformer training via `uv run invoke train` and `uv run invoke train-transformer` with the same Hydra configs used in CI, then tracked the resulting checkpoints and metrics with DVC. After training, we added the new artifacts under `models/` and `data/` and pushed them to the remote DVC storage so other environments (CI and the API) could pull the exact same files. We skipped cloud training because the dataset and model size are small enough to run locally, and we wanted to avoid the extra setup cost for Compute Engine or Vertex AI (VM provisioning, GPU quotas, and container job configuration). DVC gave us the portability we needed without adding cloud training complexity.
 
 ## Deployment
 
@@ -552,8 +552,7 @@ Extras include a Streamlit UI that calls the API, an ONNX FastAPI for CPU-friend
 >
 > Answer:
 
-The pipeline begins with raw CSV receipt lines. Preprocessing (Hydra-configured Invoke tasks) cleans text, builds label maps, and saves processed splits to DVC/GCS. Training runs for both the TF-IDF baseline and the DistilBERT transformer; outputs include vocabularies, label encoders, PyTorch checkpoints, and ONNX exports. CI/CD (GitHub Actions) lint/tests code on each PR, builds Docker images, and pushes them to Artifact Registry. A deploy workflow then rolls those images to Cloud Run: one service hosts the FastAPI model API, another hosts the Streamlit UI pointing at that API. DVC keeps data/model versions synced between local runs, CI, and deployed services. Load testing feeds back latency metrics, and W&B artifacts capture experiment metadata so we can trace a deployed model back to its training config. Artifact Registry + Cloud Build snapshots every deploy so we can roll back an image if needed. Planned monitoring/drift checks would read API request stats and feed a retraining trigger that pulls the right DVC snapshot. Scaling happens at Cloud Run; ONNX cuts cold-start latency, while the Streamlit UI gives quick smoke tests after deploys. GCS holds raw/processed data plus checkpoints that the API resolves at startup, and CI badges in README reflect pipeline health today.\
-![system_architecture](figures/system_architecture.png)
+The pipeline begins with raw CSV receipt lines. Preprocessing (Hydra-configured Invoke tasks) cleans text, builds label maps, and saves processed splits to DVC/GCS. Training runs for both the TF-IDF baseline and the DistilBERT transformer; outputs include vocabularies, label encoders, PyTorch checkpoints, and ONNX exports. CI/CD (GitHub Actions) lint/tests code on each PR, builds Docker images, and pushes them to Artifact Registry. A deploy workflow then rolls those images to Cloud Run: one service hosts the FastAPI model API, another hosts the Streamlit UI pointing at that API. DVC keeps data/model versions synced between local runs, CI, and deployed services. Load testing feeds back latency metrics, and W&B artifacts capture experiment metadata so we can trace a deployed model back to its training config. Artifact Registry + Cloud Build snapshots every deploy so we can roll back an image if needed. Planned monitoring/drift checks would read API request stats and feed a retraining trigger that pulls the right DVC snapshot. Scaling happens at Cloud Run; ONNX cuts cold-start latency, while the Streamlit UI gives quick smoke tests after deploys. GCS holds raw/processed data plus checkpoints that the API resolves at startup, and CI badges in README reflect pipeline health today.
 
 ### Question 30
 

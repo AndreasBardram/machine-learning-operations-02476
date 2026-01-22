@@ -17,12 +17,12 @@
 - Andreas [X] question 15   
 -Otto [ ] question 16   
 - freddy [ ] question 17   
-- [ ] question 18   
-- [ ] question 19   
-- [ ] question 20   
-- [ ] question 21   
-- [ ] question 22   
-- [ ] question 23   
+-Oscar [x] question 18   
+-Oscar [x] question 19   
+-Oscar [x] question 20   
+-Oscar [x] question 21   
+-Oscar [x] question 22   
+-Oscar [x] question 23   
 - freddy [ ] question 24   
 - freddy [ ] question 25   
 - freddy [ ] question 26   
