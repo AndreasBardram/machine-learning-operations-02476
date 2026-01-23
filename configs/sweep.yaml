@@ -7,9 +7,11 @@ metric:
     name: val_loss
 command:
   - ${env}
-  - ${interpreter}
-  - ${program}
-  - "src/ml_ops_project/conf/default.yaml"
+  - /bin/sh
+  - -c
+  - |
+      uv run python src/ml_ops_project/train.py +experiment=baseline_subset trainer.max_epochs=5 $(for arg in "$@"; do printf '%s ' "${arg#--}"; done)
+  - --
   - ${args}
 parameters:
     data.batch_size:
@@ -23,4 +25,4 @@ parameters:
       max: 1e-2
     model.hidden_dim:
       values: [32, 64, 128]
-run-cap: 10
+run_cap: 10
