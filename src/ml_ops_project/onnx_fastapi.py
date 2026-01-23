@@ -186,7 +186,6 @@ def predict_batch(batch: BatchTransactionFeatures):
         )
 
     except HTTPException:
-        ERRORS_TOTAL.inc()
         raise
     except Exception as e:
         ERRORS_TOTAL.inc()
