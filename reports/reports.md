@@ -365,7 +365,7 @@ Docker is used for both local parity and Cloud Run. The main `Dockerfile` builds
 >
 > Answer:
 
-We debugged API issues with pytest + httpx integration tests and FastAPI’s `TestClient`, adding structured logging to surface request/response payloads. For data bugs we used small deterministic subsets (`--subset`) and printed token/label pairs to catch mapping errors. When ONNX conversion failed, we compared PyTorch vs ONNX outputs on a fixed batch to spot numerical drift. Profiling: PyTorch profiler + cProfile on the transformer dataloader showed tokenization dominating time, so we increased batch size and enabled batched tokenizers to cut latency. VS Code remote debugging helped inspect background tasks when uvicorn was spawned from Invoke, and Ruff caught unused/buggy code paths early.
+We debugged API issues with pytest + httpx integration tests and FastAPI’s `TestClient`, adding structured logging to surface request/response payloads. For data bugs we used small deterministic subsets (`--subset`) and printed token/label pairs to catch mapping errors. When ONNX conversion failed, we compared PyTorch vs ONNX outputs on a fixed batch to spot numerical drift. Profiling: We used Pytorch Lightnings Advanced profiler whuch using CProfiler under the hood. Profiling on the transformer dataloader showed tokenization dominating time, and dataloading to be the bottleneck so we increased batch size and enabled batched tokenizers to cut latency. VS Code remote debugging helped inspect background tasks when uvicorn was spawned from Invoke, and Ruff caught unused/buggy code paths early.
 
 ## Working in the cloud
 
