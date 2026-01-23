@@ -1,7 +1,9 @@
+import time
 import numpy as np
 import onnxruntime as rt
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from prometheus_client import CollectorRegistry, Counter, Histogram, Summary, make_asgi_app
 from pydantic import BaseModel, Field
 
 # Initialize FastAPI app
@@ -10,6 +12,12 @@ app = FastAPI(
     description="API for classifying transactions using ONNX model",
     version="1.0.0",
 )
+METRICS_REGISTRY = CollectorRegistry()
+REQUESTS_TOTAL = Counter("onnx_api_requests_total", "Total requests to ONNX API.", registry=METRICS_REGISTRY)
+ERRORS_TOTAL = Counter("onnx_api_errors_total", "Total errors in ONNX API.", registry=METRICS_REGISTRY)
+REQUEST_LATENCY = Histogram("onnx_api_request_latency_seconds", "Latency for ONNX predict.", registry=METRICS_REGISTRY)
+INPUT_LENGTH = Summary("onnx_api_input_length", "Input size for ONNX predict.", registry=METRICS_REGISTRY)
+app.mount("/metrics", make_asgi_app(registry=METRICS_REGISTRY))
 
 # Load the ONNX model at startup
 provider_list = ["CUDAExecutionProvider", "CPUExecutionProvider"]
@@ -87,9 +95,13 @@ def predict(transaction: TransactionFeatures):
     Returns:
         PredictionResponse with predicted class, probabilities, and confidence
     """
+    REQUESTS_TOTAL.inc()
+    start_time = time.perf_counter()
+
     try:
         # Convert input to numpy array with correct shape (1, 32)
         input_data = np.array([transaction.features], dtype=np.float32)
+        INPUT_LENGTH.observe(len(transaction.features))
 
         # Run inference
         outputs = ort_session.run([output_name], {input_name: input_data})
@@ -108,7 +120,10 @@ def predict(transaction: TransactionFeatures):
         )
 
     except Exception as e:
+        ERRORS_TOTAL.inc()
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e!s}")  # noqa: B904
+    finally:
+        REQUEST_LATENCY.observe(time.perf_counter() - start_time)
 
 
 # Batch prediction schema
@@ -138,16 +153,21 @@ def predict_batch(batch: BatchTransactionFeatures):
     Returns:
         BatchPredictionResponse with predictions for all transactions
     """
+    REQUESTS_TOTAL.inc()
+    start_time = time.perf_counter()
+
     try:
         # Validate that all transactions have 32 features
         for i, transaction in enumerate(batch.transactions):
             if len(transaction) != 32:
+                ERRORS_TOTAL.inc()
                 raise HTTPException(
                     status_code=400, detail=f"Transaction {i} has {len(transaction)} features, expected 32"
                 )
 
         # Convert to numpy array
         input_data = np.array(batch.transactions, dtype=np.float32)
+        INPUT_LENGTH.observe(len(batch.transactions))
 
         # Run inference
         outputs = ort_session.run([output_name], {input_name: input_data})
@@ -166,9 +186,13 @@ def predict_batch(batch: BatchTransactionFeatures):
         )
 
     except HTTPException:
+        ERRORS_TOTAL.inc()
         raise
     except Exception as e:
+        ERRORS_TOTAL.inc()
         raise HTTPException(status_code=500, detail=f"Batch prediction failed: {e!s}")  # noqa: B904
+    finally:
+        REQUEST_LATENCY.observe(time.perf_counter() - start_time)
 
 
 if __name__ == "__main__":
