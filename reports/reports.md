@@ -380,11 +380,14 @@ We debugged API issues with pytest + httpx integration tests and FastAPI’s `Te
 >
 > Answer:
 
-we used the following GCP services: 
+  we used the following GCP services:
+
 - Google Cloud Storage (GCS)                    (to store models and data via DVC)
 - Artifact Registry                             (to store our docker images)
 - Cloud Run                                     (to host the API and frontend)
 - IAM Workload Identity Federation:             (for GitHub Actions to access GCP)
+- Cloud Monitoring (Prometheus)                 (to scrape /metrics and view custom API metrics)
+- Cloud Monitoring Alerting                     (to send email alerts when error when critical activiy occurs) 
 
 ### Question 18
 
@@ -474,13 +477,17 @@ Yes. The main FastAPI app (`src/ml_ops_project/api.py`) loads the newest checkpo
 >
 > Answer:
 
-We deployed the API both locally and in the cloud. Locally, we run the FastAPI app with:
+We deployed the API both locally and in the cloud. Locally, we run the
+FastAPI app with:
 
 uv run uvicorn src.ml_ops_project.api:app --host 0.0.0.0 --port 8000 --reload
 
 We then send requests to http://localhost:8000/predict.
 
-For cloud deployment, GitHub Actions builds a Docker image, pushes it to Artifact Registry, and deploys it to Cloud Run. 
+For cloud deployment, GitHub Actions builds a Docker image, pushes it to
+Artifact Registry, and deploys it to Cloud Run. The Cloud Run service now
+includes a sidecar setup for Managed Prometheus that scrapes /metrics and
+exports API metrics to Cloud Monitoring.
 
 The API is invoked with a POST request with JSON:
 
@@ -489,7 +496,8 @@ curl -X POST "<CLOUD_RUN_URL>/predict" \
 -d '{"text":"STARBUCKS"}'
 
 here the <CLOUD_RUN_URL> is the Cloud Run URL.
-This call then returns the predicted category and confidence of the input transaction. 
+This call then returns the predicted category and confidence of the input
+transaction.
 
 ### Question 25
 
