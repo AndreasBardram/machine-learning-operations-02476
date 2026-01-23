@@ -290,7 +290,6 @@ def predict(req: PredictRequest, background_tasks: BackgroundTasks) -> PredictRe
         PredictResponse: The prediction results.
 
     """
-def predict(req: PredictRequest) -> PredictResponse:
     REQUESTS_TOTAL.inc()
     start_time = time.perf_counter()
     predictor: Predictor | None = getattr(app.state, "predictor", None)
@@ -303,9 +302,6 @@ def predict(req: PredictRequest) -> PredictResponse:
     if not texts:
         ERRORS_TOTAL.inc()
         raise HTTPException(status_code=422, detail="No non-empty texts provided.")
-
-
-    
 
     total_chars = sum(len(t) for t in texts)
     INPUT_LENGTH.observe(total_chars)
