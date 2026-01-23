@@ -379,7 +379,14 @@ We debugged API issues with pytest + httpx integration tests and FastAPI’s `Te
 >
 > Answer:
 
-We used GCS (artifact storage for DVC data/models), Artifact Registry (Docker images), Cloud Run (API + Streamlit deployment), and Cloud Build via GitHub Actions for image builds. Workload Identity Federation handled auth from GitHub without static keys. Cloud Monitoring was only lightly used for checking Run service metrics, mainly CPU/memory and request counts during load testing.
+  we used the following GCP services:
+
+- Google Cloud Storage (GCS)                    (to store models and data via DVC)
+- Artifact Registry                             (to store our docker images)
+- Cloud Run                                     (to host the API and frontend)
+- IAM Workload Identity Federation:             (for GitHub Actions to access GCP)
+- Cloud Monitoring (Prometheus)                 (to scrape /metrics and view custom API metrics)
+- Cloud Monitoring Alerting                     (to send email alerts when error when critical activiy occurs) 
 
 ### Question 18
 
@@ -453,7 +460,7 @@ No. We did not train in the cloud; all training was done locally on a laptop. We
 >
 > Answer:
 
-Yes. The main FastAPI app (`src/ml_ops_project/api.py`) loads the newest checkpoint from `MODEL_CHECKPOINT_PATH`/`MODEL_CHECKPOINT_DIR` or falls back to a pretrained DistilBERT. It exposes `/health` and `/predict` supporting single text or batches and supports ENV overrides for labels/device/max_length. We also added an ONNX FastAPI (`onnx_fastapi.py`) that uses `onnxruntime` for CPU-efficient inference, plus a dummy predictor flag for integration tests. Both share a Pydantic schema and consistent error handling, and the Streamlit UI simply wraps the same endpoints with minimal glue. The API returns both label and probability so clients can threshold results, and errors return structured JSON with trace IDs for debugging downstream.
+Yes. The main FastAPI app (`src/ml_ops_project/api.py`) loads the newest checkpoint from `MODEL_CHECKPOINT_PATH`/`MODEL_CHECKPOINT_DIR` or falls back to a pretrained DistilBERT. It exposes `/health` and `/predict` supporting single text or batches and supports ENV overrides for labels/device/max_length. We also added an ONNX FastAPI (`onnx_fastapi.py`) that uses `onnxruntime` for CPU-efficient inference, plus a dummy predictor flag for integration tests. Both share a Pydantic schema and consistent error handling, and the Streamlit UI simply wraps the same endpoints with minimal glue. The API returns both label and probability so clients can threshold results, and errors return structured JSON with trace IDs for debugging downstream. Besides /predict and /health, we also expose /metrics for Prometheus scraping to support monitoring in Cloud Run.
 
 ### Question 24
 
@@ -469,7 +476,27 @@ Yes. The main FastAPI app (`src/ml_ops_project/api.py`) loads the newest checkpo
 >
 > Answer:
 
-Deployment targets Cloud Run via `deploy-cloud-run.yaml`. GitHub Actions builds `ml-ops-app`, pushes to Artifact Registry, and deploys two services: API on port 8000 and Streamlit UI on port 8501 with `API_BASE_URL` set to the API URL. Locally we validated with `docker run -p 8000:8000 ml-ops-app` then `curl -X POST http://localhost:8000/predict -d '{\"text\":\"STARBUCKS\"}'`. Cloud Run is invoked similarly with the deployed URL; auth is open for the demo, and redeploys are triggered automatically on pushes to `main` after tests succeed, which keeps drift between UI/API low. The ONNX API can be deployed the same way by switching the entrypoint argument and exposing port 8000.
+We deployed the API both locally and in the cloud. Locally, we run the
+FastAPI app with:
+
+uv run uvicorn src.ml_ops_project.api:app --host 0.0.0.0 --port 8000 --reload
+
+We then send requests to http://localhost:8000/predict.
+
+For cloud deployment, GitHub Actions builds a Docker image, pushes it to
+Artifact Registry, and deploys it to Cloud Run. The Cloud Run service now
+includes a sidecar setup for Managed Prometheus that scrapes /metrics and
+exports API metrics to Cloud Monitoring.
+
+The API is invoked with a POST request with JSON:
+
+curl -X POST "<CLOUD_RUN_URL>/predict" \
+-H "Content-Type: application/json" \
+-d '{"text":"STARBUCKS"}'
+
+here the <CLOUD_RUN_URL> is the Cloud Run URL.
+This call then returns the predicted category and confidence of the input
+transaction.
 
 ### Question 25
 
@@ -484,7 +511,13 @@ Deployment targets Cloud Run via `deploy-cloud-run.yaml`. GitHub Actions builds 
 >
 > Answer:
 
-Unit tests hit the Pydantic schemas and predict handler; integration tests spin up FastAPI and assert responses for single/batch payloads. For load testing we used Locust (`locustfile.py`) against `/predict`. In the baseline run (`docs/load_tests/locust_baseline_stats.csv`), we reached ~26 req/s aggregated with 0% failures; median latency was 160 ms and p95 about 1.4 s for POST /predict on a laptop. ONNX reduced p95 by ~25% in a follow-up batch test. These numbers guided ONNX optimizations and Cloud Run CPU sizing (min instances off, max concurrency 80), and health-checks were included to avoid noisy errors during ramp-up and cooldown phases in production environments.
+We did both unit testing and load testing of the API. Unit tests are written with pytest in tests/. 
+the tests cover request validation, single/batch prediction responses, and health checks.
+For the integration tests in tests/integrationtests/ we used a dummy predictor to verify the api. 
+For load testing we used Locust (locustfile.py) with the Cloud Run URL. 
+here we ran two scenarios, one was baseline batch size 1 and the second was batch size 8 (25 users, 5 users/s, 60s). 
+Here baseline achieved ~26 req/s with 0 failures and with a /predict latency median of ~170 ms and p95 ~1700 ms. 
+When we tested with Batch size 8 we achieved ~14 req/s with 0 failures with a predict median of ~440 ms and p95 ~4800 ms. The raw Locust CSVs are stored under docs/load_tests/ and the summary is found in docs/load_test_results.md.
 
 ### Question 26
 
@@ -498,8 +531,15 @@ Unit tests hit the Pydantic schemas and predict handler; integration tests spin 
 > *measure ... and ... that would inform us about this ... behaviour of our application.*
 >
 > Answer:
+We implemented monitoring for the deployed API. The FastAPI service exposes
+Prometheus metrics on /metrics (request count, error count, latency, input
+length). In the Cloud Run, the service is run with a Prometheus container
+that scrapes /metrics and writes a WAL, and a Stackdriver Prometheus sidecar
+that reads the WAL and forwards metrics to Cloud Monitoring.
+this then allows us to view the custom metrics google clouds metrics explorer together with the default cloud run metrics. 
+We also added a Monitoring alert policy with an email notification that triggers when the API error rate
+Exceeds a threshold. ex. abnormal request patternsthat could indicate model drift or misuse.
 
-Lightweight monitoring is in place: FastAPI logs request/response times, and Locust load tests capture latency distributions. Cloud Run metrics (CPU/memory, request count) were checked through the console during deploys, but we did not wire up alerts. A next step would be to push structured logs/metrics to Cloud Monitoring and add alerts on p95 latency/error rate plus drift signals on prediction distributions to catch category shift. That would let us page before the Streamlit UI or clients see degradations and support SLOs for latency/availability. We also plan to persist prediction distributions for offline drift analysis via a small scheduled cron job.
 
 ## Overall discussion of project
 
@@ -518,7 +558,7 @@ Lightweight monitoring is in place: FastAPI logs request/response times, and Loc
 >
 > Answer:
 
-We spent roughly 12 USD-equivalent credits: most went to a few hours of `e2-standard-4` Compute Engine for transformer training and some Cloud Run revisions during tuning. Artifact Registry/Cloud Storage costs were negligible. Working in the cloud was smooth once Workload Identity was set up; the main lesson was to keep images small and reuse caches to avoid slow builds on spot VMs. We also learned to tear down idle VMs quickly and to pin regions to avoid cross-region egress, and that Cloud Run cold starts are manageable when concurrency is tuned carefully. Overall, cloud tooling paid off for collaboration despite the setup overhead.
+We spent ~12 USD-equivalent credits in total on the project.  Most of it went to a few hours of `e2-standard-4` Compute Engine for transformer training and setup tuning. however we ended up using cloud run instead of compute engine instead of compute engine, so for the actual deployment we ended up with, together with artifact registry/cloud storage it has only cost around 0.17$ so far. So most of the cost was from training when we started with using a compute engine that was over dimensioned for its purpose. But the actual cost for deployment and storage for the google cloud project we ended up with has been barely none (~0.17$) when we trained the models locally and used appropriate setup. There were some issues with the prometheus setup when we had auto image build and deployment whenever a new commit was made, but we succeeded. compute engine was also caused some struggles since it was build on a different GCP project. thats why we moved it under the same project and instead used cloud run as it was easier to set up and manage. 
 
 ### Question 28
 
