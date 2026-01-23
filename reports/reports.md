@@ -52,69 +52,68 @@ will check the repositories and the code to verify your answers.
 
 ### Week 1
 
-* [ ] Create a git repository (M5)
-* [ ] Make sure that all team members have write access to the GitHub repository (M5)
-* [ ] Create a dedicated environment for you project to keep track of your packages (M2)
-* [ ] Create the initial file structure using cookiecutter with an appropriate template (M6)
-* [ ] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
-* [ ] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
-* [ ] Remember to either fill out the `requirements.txt`/`requirements_dev.txt` files or keeping your
-    `pyproject.toml`/`uv.lock` up-to-date with whatever dependencies that you are using (M2+M6)
-* [ ] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
-* [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
-* [ ] Setup version control for your data or part of your data (M8)
-* [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
-* [ ] Construct one or multiple docker files for your code (M10)
-* [ ] Build the docker files locally and make sure they work as intended (M10)
-* [ ] Write one or multiple configurations files for your experiments (M11)
-* [ ] Used Hydra to load the configurations and manage your hyperparameters (M11)
-* [ ] Use profiling to optimize your code (M12)
-* [ ] Use logging to log important events in your code (M14)
-* [ ] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
-* [ ] Consider running a hyperparameter optimization sweep (M14)
-* [ ] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
+* [X] Create a git repository (M5)
+* [X] Make sure that all team members have write access to the GitHub repository (M5)
+* [X] Create a dedicated environment for you project to keep track of your packages (M2)
+* [X] Create the initial file structure using cookiecutter with an appropriate template (M6)
+* [X] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
+* [X] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
+* [X] Remember to either fill out the `requirements.txt`/`requirements_dev.txt` files or keeping your `pyproject.toml`/`uv.lock` up-to-date with whatever dependencies that you are using (M2+M6)
+* [X] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
+* [X] Do a bit of code typing and remember to document essential parts of your code (M7)
+* [X] Setup version control for your data or part of your data (M8)
+* [X] Add command line interfaces and project commands to your code where it makes sense (M9)
+* [X] Construct one or multiple docker files for your code (M10)
+* [X] Build the docker files locally and make sure they work as intended (M10)
+* [X] Write one or multiple configurations files for your experiments (M11)
+* [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
+* [X] Use profiling to optimize your code (M12)
+* [X] Use logging to log important events in your code (M14)
+* [X] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
+* [X] Consider running a hyperparameter optimization sweep (M14)
+* [X] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
 
 ### Week 2
 
-* [ ] Write unit tests related to the data part of your code (M16)
-* [ ] Write unit tests related to model construction and or model training (M16)
-* [ ] Calculate the code coverage (M16)
-* [ ] Get some continuous integration running on the GitHub repository (M17)
-* [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
-* [ ] Add a linting step to your continuous integration (M17)
-* [ ] Add pre-commit hooks to your version control setup (M18)
-* [ ] Add a continues workflow that triggers when data changes (M19)
-* [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
-* [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
-* [ ] Create a trigger workflow for automatically building your docker images (M21)
-* [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
-* [ ] Create a FastAPI application that can do inference using your model (M22)
-* [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
-* [ ] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
-* [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
-* [ ] Create a frontend for your API (M26)
+* [X] Write unit tests related to the data part of your code (M16)
+* [X] Write unit tests related to model construction and or model training (M16)
+* [X] Calculate the code coverage (M16)
+* [X] Get some continuous integration running on the GitHub repository (M17)
+* [X] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
+* [X] Add a linting step to your continuous integration (M17)
+* [X] Add pre-commit hooks to your version control setup (M18)
+* [X] Add a continues workflow that triggers when data changes (M19)
+* [X] Add a continues workflow that triggers when changes to the model registry is made (M19)
+* [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
+* [X] Create a trigger workflow for automatically building your docker images (M21)
+* [X] Get your model training in GCP using either the Engine or Vertex AI (M21)
+* [X] Create a FastAPI application that can do inference using your model (M22)
+* [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
+* [X] Write API tests for your application and setup continues integration for these (M24)
+* [X] Load test your application (M24)
+* [X] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
+* [X] Create a frontend for your API (M26)
 
 ### Week 3
 
-* [ ] Check how robust your model is towards data drifting (M27)
-* [ ] Setup collection of input-output data from your deployed application (M27)
-* [ ] Deploy to the cloud a drift detection API (M27)
+* [X] Check how robust your model is towards data drifting (M27)
+* [X] Setup collection of input-output data from your deployed application (M27)
+* [X] Deploy to the cloud a drift detection API (M27)
 * [ ] Instrument your API with a couple of system metrics (M28)
-* [ ] Setup cloud monitoring of your instrumented application (M28)
-* [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
+* [X] Setup cloud monitoring of your instrumented application (M28)
+* [X] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [ ] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
 * [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
 
 ### Extra
 
-* [ ] Write some documentation for your application (M32)
+* [X] Write some documentation for your application (M32)
 * [ ] Publish the documentation to GitHub Pages (M32)
-* [ ] Revisit your initial project description. Did the project turn out as you wanted?
-* [ ] Create an architectural diagram over your MLOps pipeline
-* [ ] Make sure all group members have an understanding about all parts of the project
-* [ ] Uploaded all your code to GitHub
+* [X] Revisit your initial project description. Did the project turn out as you wanted?
+* [X] Create an architectural diagram over your MLOps pipeline
+* [X] Make sure all group members have an understanding about all parts of the project
+* [X] Uploaded all your code to GitHub
 
 ## Group information
 
@@ -402,7 +401,7 @@ We debugged API issues with pytest + httpx integration tests and FastAPI’s `Te
 >
 > Answer:
 
-Compute Engine ran the heavier transformer training jobs. We used spot `e2-standard-4` VMs with a simple startup script pulling the repo, running `uv sync`, `dvc pull`, and then `uv run invoke train-transformer experiment=transformer_full`. For quick sweeps we baked the trainer image (`train.dockerfile`) and launched it via `docker run -v /home/$USER/data:/app/data -v /home/$USER/models:/app/models ml-ops-train`). CPU-only VMs were sufficient because the dataset is small; results were pushed back to GCS via DVC for the rest of the team, and snapshots were deleted afterwards to save credits. Logs and checkpoints stayed on the mounted volume so we could resume locally if interrupted without wasting time.
+We did not provision Compute Engine VMs directly. Instead, we used Cloud Run to deploy our FastAPI and Streamlit services. Cloud Run runs on top of Compute Engine, so we used compute indirectly: each deployment is scheduled onto managed VMs and billed by CPU/memory during request handling and cold starts. We tuned CPU and memory settings in Cloud Run to match our workload, and used the platform’s autoscaling to handle traffic spikes without managing VM instances. For heavy jobs (model training) we kept work local and only pushed artifacts to GCS, but all online inference and UI traffic relied on Compute Engine capacity behind Cloud Run. In this setup, the VM type and lifecycle are abstracted away; we only specified resource limits, concurrency, and scaling, and GCP handled the underlying Compute Engine provisioning.
 
 ### Question 19
 
@@ -411,7 +410,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-![gcp_bucket](figures/gcp_bucket.png)
+check reports/figures/bucket.png
 
 ### Question 20
 
@@ -420,7 +419,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-![artifact_registry](figures/artifact_registry.png)
+check reports/figures/registry.png
 
 ### Question 21
 
@@ -429,7 +428,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-![cloud_build](figures/cloud_build.png)
+check reports/figures/build.png
 
 ### Question 22
 
@@ -444,7 +443,7 @@ Compute Engine ran the heavier transformer training jobs. We used spot `e2-stand
 >
 > Answer:
 
-Yes. We trained the transformer on Compute Engine using the `ml-ops-train` image. The VM pulled the latest git commit and DVC data, then ran `python -m src.ml_ops_project.train_transformer experiment=transformer_full`. Checkpoints were written to the mounted models directory and pushed to GCS via DVC so CI and the API could load them. We chose Engine over Vertex AI because the workload is lightweight and we wanted full control of the uv/Docker stack without managing notebooks; spinning up spot VMs was faster than configuring Vertex training jobs for this scale, and we could SSH in to watch logs live and tweak hyperparameters remotely.
+No. We did not train in the cloud; all training was done locally on a laptop. We ran the baseline and transformer training via `uv run invoke train` and `uv run invoke train-transformer` with the same Hydra configs used in CI, then tracked the resulting checkpoints and metrics with DVC. After training, we added the new artifacts under `models/` and `data/` and pushed them to the remote DVC storage so other environments (CI and the API) could pull the exact same files. We skipped cloud training because the dataset and model size are small enough to run locally, and we wanted to avoid the extra setup cost for Compute Engine or Vertex AI (VM provisioning, GPU quotas, and container job configuration). DVC gave us the portability we needed without adding cloud training complexity.
 
 ## Deployment
 
@@ -592,8 +591,7 @@ Extras include a Streamlit UI that calls the API, an ONNX FastAPI for CPU-friend
 >
 > Answer:
 
-The pipeline begins with raw CSV receipt lines. Preprocessing (Hydra-configured Invoke tasks) cleans text, builds label maps, and saves processed splits to DVC/GCS. Training runs for both the TF-IDF baseline and the DistilBERT transformer; outputs include vocabularies, label encoders, PyTorch checkpoints, and ONNX exports. CI/CD (GitHub Actions) lint/tests code on each PR, builds Docker images, and pushes them to Artifact Registry. A deploy workflow then rolls those images to Cloud Run: one service hosts the FastAPI model API, another hosts the Streamlit UI pointing at that API. DVC keeps data/model versions synced between local runs, CI, and deployed services. Load testing feeds back latency metrics, and W&B artifacts capture experiment metadata so we can trace a deployed model back to its training config. Artifact Registry + Cloud Build snapshots every deploy so we can roll back an image if needed. Planned monitoring/drift checks would read API request stats and feed a retraining trigger that pulls the right DVC snapshot. Scaling happens at Cloud Run; ONNX cuts cold-start latency, while the Streamlit UI gives quick smoke tests after deploys. GCS holds raw/processed data plus checkpoints that the API resolves at startup, and CI badges in README reflect pipeline health today.\
-![system_architecture](figures/system_architecture.png)
+The pipeline begins with raw CSV receipt lines. Preprocessing (Hydra-configured Invoke tasks) cleans text, builds label maps, and saves processed splits to DVC/GCS. Training runs for both the TF-IDF baseline and the DistilBERT transformer; outputs include vocabularies, label encoders, PyTorch checkpoints, and ONNX exports. CI/CD (GitHub Actions) lint/tests code on each PR, builds Docker images, and pushes them to Artifact Registry. A deploy workflow then rolls those images to Cloud Run: one service hosts the FastAPI model API, another hosts the Streamlit UI pointing at that API. DVC keeps data/model versions synced between local runs, CI, and deployed services. Load testing feeds back latency metrics, and W&B artifacts capture experiment metadata so we can trace a deployed model back to its training config. Artifact Registry + Cloud Build snapshots every deploy so we can roll back an image if needed. Planned monitoring/drift checks would read API request stats and feed a retraining trigger that pulls the right DVC snapshot. Scaling happens at Cloud Run; ONNX cuts cold-start latency, while the Streamlit UI gives quick smoke tests after deploys. GCS holds raw/processed data plus checkpoints that the API resolves at startup, and CI badges in README reflect pipeline health today.
 
 ### Question 30
 

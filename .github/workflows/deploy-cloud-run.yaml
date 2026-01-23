@@ -4,6 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "Dockerfile"
+      - "docker/**"
+      - "src/**"
+      - "configs/**"
+      - "config.yaml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "README.md"
+      - ".dvc/**"
+      - "data.dvc"
+      - "models.dvc"
+      - "dvc.lock"
+      - "cloudrun-service.yaml"
+      - ".github/workflows/deploy-cloud-run.yaml"
   workflow_dispatch: {}
 
 permissions:
@@ -55,23 +70,11 @@ jobs:
           docker push "${IMAGE}"
 
       - name: Deploy to Cloud Run
-        env:
-          RUN_SERVICE_ACCOUNT: ${{ secrets.GCP_RUN_SERVICE_ACCOUNT }}
         run: |
-          args=(
-            run deploy "${SERVICE_NAME}"
-            --image "${IMAGE}"
-            --region "${REGION}"
+          sed -i "s|image: .*ml-ops-app:.*|image: ${IMAGE}|" cloudrun-service.yaml
+          gcloud run services replace cloudrun-service.yaml \
+            --region "${REGION}" \
             --project "${PROJECT_ID}"
-            --platform managed
-            --allow-unauthenticated
-            --port 8000
-            --memory 4Gi
-          )
-          if [ -n "${RUN_SERVICE_ACCOUNT}" ]; then
-            args+=(--service-account "${RUN_SERVICE_ACCOUNT}")
-          fi
-          gcloud "${args[@]}"
 
       - name: Deploy Streamlit UI to Cloud Run
         run: |

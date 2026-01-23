@@ -1,5 +1,7 @@
 # Receipt line-item classifier (MLOps)
 
+The web app solution is online and can be found here. It might take a couple of minutes before woking when opening for the first time: https://ml-ops-ui-1070209272290.europe-north1.run.app/?fbclid=IwY2xjawPgiR1leHRuA2FlbQIxMQBzcnRjBmFwcF9pZAEwAAEe4TZknvUV0139TDKUMN_Ha4lOSg3SbncNdPVTpVUhg-J00k-7eh8-l0jCeaA_aem_AelcadSxYcux0gJPGiv3EQ
+
 End-to-end ML system for classifying short transaction descriptions (receipt line-items / bank statement text) into spending categories. It includes data preprocessing, baseline + transformer training, evaluation, ONNX export, FastAPI/ONNX inference APIs, Streamlit UI, load tests, CI, and deployment docs.
 
 ## Environment
