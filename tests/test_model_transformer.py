@@ -16,6 +16,7 @@ class DummyHFModel(torch.nn.Module):
     def __init__(self, num_labels: int):
         super().__init__()
         self.classifier = torch.nn.Linear(16, num_labels)
+        self.config = SimpleNamespace()
 
     def forward(self, input_ids, attention_mask=None, labels=None):  # noqa: ARG002
         batch_size = input_ids.size(0)
