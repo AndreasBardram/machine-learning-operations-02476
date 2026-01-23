@@ -189,3 +189,4 @@ deploy-sa.json
 /data
 .env
 /models
+predictions/
