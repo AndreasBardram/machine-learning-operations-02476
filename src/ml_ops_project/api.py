@@ -1,4 +1,5 @@
 import os
+import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,6 +8,7 @@ from typing import Any, Protocol
 import torch
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from prometheus_client import CollectorRegistry, Counter, Histogram, Summary, make_asgi_app
 from pydantic import BaseModel, Field, model_validator
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -16,6 +18,13 @@ try:
     from ml_ops_project.model_transformer import TransformerTransactionModel
 except Exception:  # pragma: no cover
     TransformerTransactionModel = None
+
+METRICS_REGISTRY = CollectorRegistry()
+
+REQUESTS_TOTAL = Counter("api_requests_total", "Total requests to /predict.", registry=METRICS_REGISTRY)
+ERRORS_TOTAL = Counter("api_errors_total", "Total errors in /predict.", registry=METRICS_REGISTRY)
+REQUEST_LATENCY = Histogram("api_request_latency_seconds", "Latency for /predict.", registry=METRICS_REGISTRY)
+INPUT_LENGTH = Summary("api_input_length_chars", "Input size for /predict.", registry=METRICS_REGISTRY)
 
 
 class PredictRequest(BaseModel):
@@ -189,6 +198,7 @@ async def _lifespan(app: FastAPI):
 
 
 app = FastAPI(title="ml_ops_project inference API", version="0.1.0", lifespan=_lifespan)
+app.mount("/metrics", make_asgi_app(registry=METRICS_REGISTRY))
 
 
 @app.get("/health")
@@ -198,14 +208,27 @@ def health() -> dict[str, str]:
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest) -> PredictResponse:
+    REQUESTS_TOTAL.inc()
+    start_time = time.perf_counter()
     predictor: Predictor | None = getattr(app.state, "predictor", None)
     if predictor is None:
+        ERRORS_TOTAL.inc()
         raise HTTPException(status_code=503, detail="Model not loaded yet.")
 
     texts = [req.text] if req.text is not None else (req.texts or [])
     texts = [t.strip() for t in texts if t is not None and t.strip() != ""]
     if not texts:
+        ERRORS_TOTAL.inc()
         raise HTTPException(status_code=422, detail="No non-empty texts provided.")
 
-    preds = predictor.predict(texts)
+    total_chars = sum(len(t) for t in texts)
+    INPUT_LENGTH.observe(total_chars)
+
+    try:
+        preds = predictor.predict(texts)
+    except Exception:
+        ERRORS_TOTAL.inc()
+        raise
+    finally:
+        REQUEST_LATENCY.observe(time.perf_counter() - start_time)
     return PredictResponse(predictions=preds, model=predictor.model_id)

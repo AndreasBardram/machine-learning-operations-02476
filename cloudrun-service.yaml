@@ -1,0 +1,58 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ml-ops-api
+  namespace: mlops-484110
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      serviceAccountName: dvc-796@mlops-484110.iam.gserviceaccount.com
+      containers:
+        - name: api
+          image: europe-north1-docker.pkg.dev/mlops-484110/mlops-repo/ml-ops-app:adb9397f0daf3361dd7526172826f4928ce70db2
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DVC_PULL_ON_STARTUP
+              value: "0"
+          resources:
+            limits:
+              cpu: "1"
+              memory: 4Gi
+        - name: prometheus
+          image: prom/prometheus:v2.47.0
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - mkdir -p /prometheus/wal && /bin/prometheus --config.file=/etc/prometheus/config.yaml --storage.tsdb.path=/prometheus
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus
+        - name: stackdriver-sidecar
+          image: gcr.io/stackdriver-prometheus/stackdriver-prometheus-sidecar:0.10.1
+          args:
+            - "--config-file=/etc/prometheus/config.yaml"
+            - "--stackdriver.project-id=mlops-484110"
+            - "--prometheus.api-address=http://127.0.0.1:9090/"
+            - "--prometheus.wal-directory=/prometheus/wal"
+            - "--web.listen-address=0.0.0.0:9091"
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus
+      volumes:
+        - name: prometheus-config
+          secret:
+            secretName: prometheus-sidecar-config
+            items:
+              - key: latest
+                path: config.yaml
+        - name: prometheus-data
+          emptyDir: {}

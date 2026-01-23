@@ -17,6 +17,7 @@ on:
       - "data.dvc"
       - "models.dvc"
       - "dvc.lock"
+      - "cloudrun-service.yaml"
       - ".github/workflows/deploy-cloud-run.yaml"
   workflow_dispatch: {}
 
@@ -69,23 +70,10 @@ jobs:
           docker push "${IMAGE}"
 
       - name: Deploy to Cloud Run
-        env:
-          RUN_SERVICE_ACCOUNT: ${{ secrets.GCP_RUN_SERVICE_ACCOUNT }}
         run: |
-          args=(
-            run deploy "${SERVICE_NAME}"
-            --image "${IMAGE}"
-            --region "${REGION}"
+          gcloud run services replace cloudrun-service.yaml \
+            --region "${REGION}" \
             --project "${PROJECT_ID}"
-            --platform managed
-            --allow-unauthenticated
-            --port 8000
-            --memory 4Gi
-          )
-          if [ -n "${RUN_SERVICE_ACCOUNT}" ]; then
-            args+=(--service-account "${RUN_SERVICE_ACCOUNT}")
-          fi
-          gcloud "${args[@]}"
 
       - name: Deploy Streamlit UI to Cloud Run
         run: |
