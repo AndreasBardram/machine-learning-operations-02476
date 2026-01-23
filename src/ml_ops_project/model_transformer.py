@@ -16,6 +16,22 @@ class TransformerTransactionModel(pl.LightningModule):
     ):
         super().__init__()
         self.save_hyperparameters()
+
+        # Default labels if not provided
+        if labels is None:
+            labels = [
+                "Charity & Donations",
+                "Entertainment & Recreation",
+                "Financial Services",
+                "Food & Dining",
+                "Government & Legal",
+                "Healthcare & Medical",
+                "Income",
+                "Shopping & Retail",
+                "Transportation",
+                "Utilities & Services",
+            ]
+
         self.model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path, num_labels=num_labels)
 
         # Ensure model is in train mode (AutoModel can sometimes init in eval mode)
