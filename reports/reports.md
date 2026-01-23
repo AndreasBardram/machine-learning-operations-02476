@@ -99,7 +99,7 @@ will check the repositories and the code to verify your answers.
 * [X] Check how robust your model is towards data drifting (M27)
 * [X] Setup collection of input-output data from your deployed application (M27)
 * [X] Deploy to the cloud a drift detection API (M27)
-* [ ] Instrument your API with a couple of system metrics (M28)
+* [X] Instrument your API with a couple of system metrics (M28)
 * [X] Setup cloud monitoring of your instrumented application (M28)
 * [X] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
@@ -487,7 +487,7 @@ uv run uvicorn src.ml_ops_project.api:app --host 0.0.0.0 --port 8000 --reload
 We then send requests to http://localhost:8000/predict.
 
 For cloud deployment, GitHub Actions builds a Docker image, pushes it to
-Artifact Registry, and deploys it to Cloud Run. The Cloud Run service now
+Artifact Registry, and deploys it to Cloud Run. The Cloud Run service 
 includes a sidecar setup for Managed Prometheus that scrapes /metrics and
 exports API metrics to Cloud Monitoring.
 
@@ -498,8 +498,7 @@ curl -X POST "<CLOUD_RUN_URL>/predict" \
 -d '{"text":"STARBUCKS"}'
 
 here the <CLOUD_RUN_URL> is the Cloud Run URL.
-This call then returns the predicted category and confidence of the input
-transaction.
+This call then returns the predicted category and confidence of the input transaction.
 
 ### Question 25
 
@@ -534,13 +533,9 @@ When we tested with Batch size 8 we achieved ~14 req/s with 0 failures with a pr
 > *measure ... and ... that would inform us about this ... behaviour of our application.*
 >
 > Answer:
-We implemented monitoring for the deployed API. The FastAPI service exposes
-Prometheus metrics on /metrics (request count, error count, latency, input
-length). In the Cloud Run, the service is run with a Prometheus container
-that scrapes /metrics and writes a WAL, and a Stackdriver Prometheus sidecar
-that reads the WAL and forwards metrics to Cloud Monitoring.
-this then allows us to view the custom metrics google clouds metrics explorer together with the default cloud run metrics. 
-We also added a Monitoring alert policy with an email notification that triggers when the API error rate
+We implemented monitoring for the deployed API. The FastAPI service exposes Prometheus metrics on /metrics (request count, error count, latency, input length). 
+In the Cloud Run, the service is run with a Prometheus container that scrapes /metrics and writes a WAL, and a Stackdriver Prometheus sidecar that reads the WAL and forwards metrics to Cloud Monitoring. 
+this then allows us to view the custom metrics google clouds metrics explorer together with the default cloud run metrics. We also added a Monitoring alert policy with an email notification that triggers when the API error rate
 Exceeds a threshold. ex. abnormal request patternsthat could indicate model drift or misuse.
 
 
@@ -561,7 +556,7 @@ Exceeds a threshold. ex. abnormal request patternsthat could indicate model drif
 >
 > Answer:
 
-We spent ~12 USD-equivalent credits in total on the project.  Most of it went to a few hours of `e2-standard-4` Compute Engine for transformer training and setup tuning. however we ended up using cloud run instead of compute engine instead of compute engine, so for the actual deployment we ended up with, together with artifact registry/cloud storage it has only cost around 0.17$ so far. So most of the cost was from training when we started with using a compute engine that was over dimensioned for its purpose. But the actual cost for deployment and storage for the google cloud project we ended up with has been barely none (~0.17$) when we trained the models locally and used appropriate setup. There were some issues with the prometheus setup when we had auto image build and deployment whenever a new commit was made, but we succeeded. compute engine was also caused some struggles since it was build on a different GCP project. thats why we moved it under the same project and instead used cloud run as it was easier to set up and manage. 
+We spent ~12 USD-equivalent credits in total on the project.  Most of it went to a few hours of `e2-standard-4` Compute Engine for transformer training and setup tuning. however we ended up using cloud run instead of compute engine for the actual deployment. Together with artifact registry/cloud storage it has only cost around 0.17$ so far for the actual deployment. So most of the cost was from training when we started with using a compute engine that was over dimensioned for its purpose. But the actual cost for deployment and storage for the google cloud project we ended up with has been barely none (~0.17$) when we trained the models locally and used appropriate setup. There were some issues with the prometheus setup when we had auto image build and deployment whenever a new commit was made, but we succeeded. compute engine also caused some struggles since it was build on a different GCP project. thats why we moved it under the same project and instead used cloud run as it was easier to set up and manage. and apparently significantly cheaper.
 
 ### Question 28
 
@@ -628,4 +623,4 @@ Biggest hurdles: (1) Keeping configs coherent between baseline and transformerâ€
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
-Oscar drove the FastAPI/Cloud Run deployment, CI, and DVC bucket setup. Otto owned modeling/experimentation (baseline + transformer, profiling). Freddy focused on Hydra configs, sweeps, and the Streamlit UI. Frederik implemented data pipelines, ONNX API, and most tests. Andreas set up GitHub Actions (lint/tests/data-change triggers) and Docker build workflows. We occasionally used ChatGPT/Copilot for refactors and debugging error messages but verified outputs with tests before merging.
+Oscar drove the FastAPI/Cloud Run deployment, CI, and DVC bucket setup. Otto owned modeling/experimentation (baseline + transformer, profiling). Fredik Allingham focused on Hydra configs, sweeps, promethius, and GCP. Frederik Nagel implemented data pipelines, ONNX API, and most tests. Andreas set up GitHub Actions (lint/tests/data-change triggers) and Docker build workflows. We occasionally used ChatGPT/Copilot for refactors and debugging error messages but verified outputs with tests before merging.
